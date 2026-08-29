@@ -2,7 +2,7 @@
 
 //! Beamte's [`Role`] enum against treebank's own term lists.
 //!
-//! DESIGN.md §2 says a rule is portable because the vocabulary is enforced in
+//! notes/DESIGN.md §2 says a rule is portable because the vocabulary is enforced in
 //! the parse table. That only holds while beamte's enum and treebank's terms
 //! agree, and the failure mode is silent: an unknown term simply never matches
 //! a rule, so every test stays green while a rule quietly stops firing.
@@ -42,7 +42,7 @@ fn supertype_membership_is_transitive() {
 
 #[test]
 fn a_term_this_grammar_does_not_thread_carries_no_membership() {
-    // DESIGN.md §3.1.1: a term's tier is per-grammar. The Python grammar does
+    // notes/DESIGN.md §3.1.1: a term's tier is per-grammar. The Python grammar does
     // not carry _control_flow as a supertype at all -- _loop derives straight
     // from _statement -- so a rule asking for _control_flow would silently
     // never fire here. This is why `test-logic` asks for _loop and _branch.

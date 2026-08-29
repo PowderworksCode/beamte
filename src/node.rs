@@ -104,7 +104,7 @@ pub fn walk<'t, N: Node<'t>>(node: N, visit: &mut impl FnMut(N) -> Visit) {
 /// A file to inspect, and optionally the code it tests.
 ///
 /// `under_test` is what the semantic rules need and is unresolved for now;
-/// DESIGN.md §10.2 is the open question that gates them.
+/// notes/DESIGN.md §10.2 is the open question that gates them.
 pub struct Unit<'t, N: Node<'t>> {
     pub path: &'t str,
     pub source: &'t str,

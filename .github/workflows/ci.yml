@@ -43,7 +43,7 @@ jobs:
             echo "only the top-level prose changed; the cargo jobs are skipped"
           fi
 
-  # DESIGN.md 8.3 gate 1. The published library has no dependencies and no
+  # notes/DESIGN.md 8.3 gate 1. The published library has no dependencies and no
   # parser; building it without `dev` is what proves nothing dev-gated became
   # reachable from the API.
   library:
