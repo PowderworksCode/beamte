@@ -13,14 +13,20 @@ publish = false
 # `manifests` reads a grammar's node-types.json and roles.json into a role
 # table. On by default because every host needs it and doing it per host is
 # how two hosts come to disagree; `default-features = false` still gives a
-# library with no dependencies at all.
+# library with no dependencies at all. It reads them with treebank's own
+# types -- DESIGN.md has always said the vocabulary comes from treebank, and
+# a second reading of the same manifests is how the two come to disagree
+# about what derives from what.
 default = ["manifests"]
-manifests = ["dep:serde_json"]
+manifests = ["dep:treebank"]
 dev = ["manifests", "dep:tree-sitter", "dep:treebank-python"]
 
 [dependencies]
 tree-sitter = { version = "0.26", optional = true }
-serde_json = { version = "1", optional = true }
+# Vocabulary only. `pack` and `fetch` are treebank's defaults and would drag
+# in wasmtime and an HTTP stack -- 238 crates against 14 -- into a library
+# whose whole premise is that it links neither.
+treebank = { version = "0.2", default-features = false, optional = true }
 # Not on crates.io yet, so a git dependency rather than a path one: this
 # resolves anywhere with repo access, where a path dependency would need a
 # full powderworks/ checkout. It is optional and off by default, so it never
