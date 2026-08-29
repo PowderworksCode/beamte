@@ -33,6 +33,24 @@ jobs:
             exit 1
           fi
           echo "no dependencies without default features"
+      # The default library reads grammar manifests, so it takes treebank --
+      # but treebank's own defaults are `pack` and `fetch`, which are a wasm
+      # engine and an HTTP stack. Turning those on would put 238 crates into
+      # a library whose premise is that it links neither, and it would break
+      # straitjacket's musl release build, which is the exact failure beamte
+      # exists not to cause. `default-features = false` is load-bearing, so
+      # it is checked rather than trusted to survive an edit.
+      - name: the default library links no engine
+        run: |
+          set -euo pipefail
+          tree=$(cargo tree --locked --prefix none)
+          heavy=$(echo "$tree" | grep -Eic 'wasmtime|wasmer|cranelift|ureq|tree-sitter' || true)
+          if [ "$heavy" -ne 0 ]; then
+            echo "$tree" | grep -Ei 'wasmtime|wasmer|cranelift|ureq|tree-sitter'
+            echo "::error::the default library pulled in an engine or a parser"
+            exit 1
+          fi
+          echo "no engine, no parser, no HTTP stack in the default tree"
       - run: cargo build --locked
       - run: cargo test --locked
       - run: cargo clippy --locked --all-targets -- -D warnings
