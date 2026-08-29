@@ -1,0 +1,29 @@
+[package]
+name = "beamte"
+version = "0.0.0"
+edition = "2024"
+description = "Test-quality rules over treebank trees. Trees in, findings out."
+repository = "https://github.com/PowderworksCode/beamte"
+publish = false
+
+# The published library has no dependencies at all. `dev` adds a parser and a
+# binary so rules can be developed against real files; DESIGN.md §8 explains
+# why that costs consumers nothing.
+[features]
+default = []
+dev = ["dep:tree-sitter", "dep:tree-sitter-python"]
+
+[dependencies]
+tree-sitter = { version = "0.25", optional = true }
+tree-sitter-python = { version = "0.25", optional = true }
+
+[[bin]]
+name = "beamte"
+path = "src/bin/beamte.rs"
+required-features = ["dev"]
+
+[lints.rust]
+unused_must_use = "deny"
+
+[lints.clippy]
+unwrap_used = "deny"

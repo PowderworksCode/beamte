@@ -1,0 +1,32 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # DESIGN.md 8.3 gate 1. The published library has no dependencies and no
+  # parser; building it without `dev` is what proves nothing dev-gated became
+  # reachable from the API.
+  library:
+    name: library (default features)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: cargo build --locked
+      - run: cargo test --locked
+      - run: cargo clippy --locked --all-targets -- -D warnings
+
+  # The rules themselves, against real parsed source.
+  rules:
+    name: rules (dev harness)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: cargo fmt --check
+      - run: cargo test --locked --features dev
+      - run: cargo clippy --locked --all-targets --features dev -- -D warnings

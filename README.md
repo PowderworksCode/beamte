@@ -16,3 +16,22 @@ host.
 catalogue and its provenance, the fidelity/resilience/precision spine, the
 boundary between this library and its host, the substrate it assumes, and the
 open questions. Start there.
+
+## Development
+
+```sh
+cargo test                 # the library, with no parser and no dependencies
+cargo test --features dev  # the rules, against real parsed source
+```
+
+`dev` adds a parser and a `beamte` binary so rules can be developed against
+real files. It is off by default and never reaches a consumer.
+
+```sh
+cargo run --features dev -- check   some_test.py   # findings
+cargo run --features dev -- explain some_test.py   # the tree, with roles
+cargo run --features dev -- rules                  # the catalogue
+```
+
+`explain` is the one that matters: when a rule misfires, the finding tells you
+nothing and the tree tells you everything.
