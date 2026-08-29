@@ -30,9 +30,10 @@ treebank's own grammar and reads roles out of the manifests that grammar ships,
 so a rule is exercised against treebank's answers rather than a table written
 here.
 
-treebank is private and not yet on crates.io, so it is taken as a git
-dependency and CI needs a `TREEBANK_TOKEN` secret with read access to it. Both
-go away once treebank is published.
+treebank is not on crates.io yet, so it is taken as a git dependency. That
+needs no credentials — the repository is public — but it does mean beamte
+cannot be published until treebank is, which is why the crate is
+`publish = false` for now.
 
 ```sh
 cargo run --features dev -- check   some_test.py   # findings

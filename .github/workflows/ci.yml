@@ -17,22 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      # treebank is private and not on crates.io, so the dev harness takes it
-      # as a git dependency. Cargo reads every git dependency in Cargo.lock to
-      # validate it -- even one behind an inactive feature -- so the default
-      # build needs this too. It all goes away when treebank is published.
-      - name: authenticate to treebank
-        env:
-          TREEBANK_TOKEN: ${{ secrets.TREEBANK_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [ -z "${TREEBANK_TOKEN:-}" ]; then
-            echo "::error::TREEBANK_TOKEN is not set; see .github/workflows/ci.yml"
-            exit 1
-          fi
-          git config --global \
-            url."https://x-access-token:${TREEBANK_TOKEN}@github.com/".insteadOf \
-            "https://github.com/"
       - run: cargo build --locked
       - run: cargo test --locked
       - run: cargo clippy --locked --all-targets -- -D warnings
@@ -44,17 +28,5 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: cargo fmt --check
-      - name: authenticate to treebank
-        env:
-          TREEBANK_TOKEN: ${{ secrets.TREEBANK_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [ -z "${TREEBANK_TOKEN:-}" ]; then
-            echo "::error::TREEBANK_TOKEN is not set; see .github/workflows/ci.yml"
-            exit 1
-          fi
-          git config --global \
-            url."https://x-access-token:${TREEBANK_TOKEN}@github.com/".insteadOf \
-            "https://github.com/"
       - run: cargo test --locked --features dev
       - run: cargo clippy --locked --all-targets --features dev -- -D warnings
