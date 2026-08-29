@@ -19,7 +19,13 @@ open questions. Start there.
 
 ## Development
 
+`scripts/dev.sh` points git at the committed hooks and runs both halves of the
+gate in the order CI checks them, starting with the no-default-features build,
+which is the claim the crate makes about itself.
+
 ```sh
+scripts/dev.sh
+
 cargo test                 # the library, with no parser and no dependencies
 cargo test --features dev  # the rules, against real parsed source
 ```
