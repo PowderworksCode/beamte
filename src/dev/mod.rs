@@ -14,14 +14,12 @@
 //! comparing a native tree against a pack tree, and this makes that comparison
 //! possible rather than settling it.
 
-pub mod roles;
-
 use std::sync::OnceLock;
 
 use crate::node::{Node, Span};
 use crate::role::RoleSet;
 
-pub use roles::RoleTable;
+pub use crate::manifest::RoleTable;
 
 /// The Python role table, built once from the grammar's own manifests.
 pub fn python_roles() -> &'static RoleTable {

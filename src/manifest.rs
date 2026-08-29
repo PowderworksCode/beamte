@@ -1,5 +1,12 @@
 //! Roles read out of a treebank grammar's own manifests.
 //!
+//! Every host needs this: a treebank tree gives concrete node kinds, and the
+//! mapping onto the vocabulary lives in the two manifests a grammar ships --
+//! `node-types.json` for the table tier, `roles.json` for facets. A wasm pack
+//! carries both (`tb_node_types()`, `tb_roles()`), as does a grammar crate
+//! (`NODE_TYPES`, `ROLES`). Doing this once here is the point of the library;
+//! doing it per host is how two hosts come to disagree about what a `_loop` is.
+//!
 //! Nothing here decides what a node is. Table-tier roles are real supertypes
 //! in the parse table and arrive in `node-types.json`; facet-tier roles cross
 //! cut derivations and arrive in `roles.json`. Both ship inside the grammar
