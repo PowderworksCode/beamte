@@ -21,7 +21,7 @@ pub struct Span {
 
 /// One node of a parsed file.
 ///
-/// Implementers expose *named* children only: the punctuation a grammar needs
+/// Implementors expose *named* children only: the punctuation a grammar needs
 /// is below the layer any rule here reasons about.
 pub trait Node<'t>: Copy + Sized {
     /// The grammar's own name for this node, such as `function_definition`.
