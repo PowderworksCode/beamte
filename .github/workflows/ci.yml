@@ -15,6 +15,7 @@ jobs:
   library:
     name: library (default features)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       # The claim in Cargo.toml is that `default-features = false` leaves a
@@ -59,6 +60,7 @@ jobs:
   rules:
     name: rules (dev harness)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - run: cargo fmt --check
