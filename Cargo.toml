@@ -10,8 +10,13 @@ publish = false
 # binary so rules can be developed against real files; DESIGN.md §8 explains
 # why that costs consumers nothing.
 [features]
-default = []
-dev = ["dep:tree-sitter", "dep:treebank-python", "dep:serde_json"]
+# `manifests` reads a grammar's node-types.json and roles.json into a role
+# table. On by default because every host needs it and doing it per host is
+# how two hosts come to disagree; `default-features = false` still gives a
+# library with no dependencies at all.
+default = ["manifests"]
+manifests = ["dep:serde_json"]
+dev = ["manifests", "dep:tree-sitter", "dep:treebank-python"]
 
 [dependencies]
 tree-sitter = { version = "0.26", optional = true }

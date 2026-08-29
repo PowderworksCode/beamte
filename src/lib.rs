@@ -8,6 +8,8 @@
 //! the authoritative document.
 
 pub mod finding;
+#[cfg(feature = "manifests")]
+pub mod manifest;
 pub mod model;
 pub mod node;
 pub mod role;
@@ -17,6 +19,8 @@ pub mod rules;
 pub mod dev;
 
 pub use finding::{Citation, EvidenceStep, Finding, Property, Rule, RuleId};
+#[cfg(feature = "manifests")]
+pub use manifest::RoleTable;
 pub use model::TestModel;
 pub use node::{Node, Span, Unit, Visit, walk};
 pub use role::{Role, RoleSet};
