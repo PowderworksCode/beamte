@@ -15,8 +15,9 @@ dependencies = [
 name = "beamte"
 version = "0.0.0"
 dependencies = [
+ "serde_json",
  "tree-sitter",
- "tree-sitter-python",
+ "treebank-python",
 ]
 
 [[package]]
@@ -184,9 +185,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter"
-version = "0.25.10"
+version = "0.26.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78f873475d258561b06f1c595d93308a7ed124d9977cb26b148c2084a4a3cc87"
+checksum = "17ebdd3a5a7e28a1890b876fdbd0c3c0fe0a6336cffaa104f11b9f720c9daa29"
 dependencies = [
  "cc",
  "regex",
@@ -203,10 +204,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "009994f150cc0cd50ff54917d5bc8bffe8cad10ca10d81c34da2ec421ae61782"
 
 [[package]]
-name = "tree-sitter-python"
-version = "0.25.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6bf85fd39652e740bf60f46f4cda9492c3a9ad75880575bf14960f775cb74a1c"
+name = "treebank-python"
+version = "0.1.0"
+source = "git+https://github.com/PowderworksCode/treebank#abe1288f958c36bf4d031561bf9512b912f1141a"
 dependencies = [
  "cc",
  "tree-sitter-language",

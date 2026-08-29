@@ -1,56 +1,148 @@
-//! Upstream node kinds mapped onto treebank roles, for the dev harness only.
+//! Roles read out of a treebank grammar's own manifests.
 //!
-//! Treebank threads roles through the parse table, so a real treebank grammar
-//! answers `roles()` from the tree itself and this table does not exist. It is
-//! here so rules can be exercised before treebank's grammars are published,
-//! and it covers only what the implemented rules ask for.
+//! Nothing here decides what a node is. Table-tier roles are real supertypes
+//! in the parse table and arrive in `node-types.json`; facet-tier roles cross
+//! cut derivations and arrive in `roles.json`. Both ship inside the grammar
+//! crate, so the mapping is treebank's answer rather than this crate's guess.
 //!
-//! The mapping is also the clearest illustration of why the vocabulary is
-//! worth having: upstream Python calls an invocation `call`, treebank calls it
-//! `call_expression`, and a rule written against `_invocation` does not care.
+//! Supertypes nest — in the Python grammar `while_statement` derives from
+//! `_loop` and `_loop` from `_statement` — so membership is the transitive
+//! closure over the subtype lists, not one level of it.
+//!
+//! Which terms are threaded is per-grammar (DESIGN.md §3.1.1). Python carries
+//! no `_control_flow` supertype at all, so asking a node for it there yields
+//! nothing. That is a fact about the grammar, and reading it from the manifest
+//! is how a rule finds out rather than assuming.
+
+use std::collections::{HashMap, HashSet};
 
 use crate::role::{Role, RoleSet};
 
-/// Roles for a node kind in the upstream Python grammar.
-pub fn python(kind: &str) -> RoleSet {
-    use Role::*;
+/// Node kind to roles, for one grammar.
+#[derive(Debug, Clone, Default)]
+pub struct RoleTable {
+    by_kind: HashMap<String, RoleSet>,
+    /// Terms the manifests carry that [`Role`] does not know.
+    unknown_terms: Vec<String>,
+}
 
-    match kind {
-        "function_definition" => RoleSet::of(Declaration)
-            .with(Callable)
-            .with(Scope)
-            .with(Binding)
-            .with(Statement),
-        "lambda" => RoleSet::of(Callable).with(Scope).with(Expression),
-        "class_definition" => RoleSet::of(Declaration)
-            .with(Scope)
-            .with(Binding)
-            .with(Statement),
+impl RoleTable {
+    /// Build from a grammar's `NODE_TYPES` and `ROLES` manifests.
+    pub fn from_manifests(node_types: &str, roles: &str) -> Result<RoleTable, String> {
+        let node_types: serde_json::Value = serde_json::from_str(node_types)
+            .map_err(|error| format!("node-types.json: {error}"))?;
+        let roles: serde_json::Value =
+            serde_json::from_str(roles).map_err(|error| format!("roles.json: {error}"))?;
 
-        "for_statement" | "while_statement" => RoleSet::of(Loop).with(ControlFlow).with(Statement),
-        "if_statement" | "match_statement" => RoleSet::of(Branch).with(ControlFlow).with(Statement),
-        "conditional_expression" => RoleSet::of(Branch).with(ControlFlow).with(Expression),
-        "try_statement" | "with_statement" => RoleSet::of(ControlFlow).with(Statement),
-        "return_statement" | "break_statement" | "continue_statement" | "raise_statement" => {
-            RoleSet::of(Jump).with(ControlFlow).with(Statement)
+        let mut table = RoleTable::default();
+        let mut unknown = HashSet::new();
+
+        // Table tier: every entry carrying `subtypes` is a supertype, and each
+        // of its subtypes derives from it.
+        let mut supertypes_of: HashMap<&str, Vec<&str>> = HashMap::new();
+        let entries = node_types
+            .as_array()
+            .ok_or_else(|| "node-types.json is not an array".to_string())?;
+        for entry in entries {
+            let (Some(name), Some(subtypes)) = (
+                entry.get("type").and_then(serde_json::Value::as_str),
+                entry.get("subtypes").and_then(serde_json::Value::as_array),
+            ) else {
+                continue;
+            };
+            for subtype in subtypes {
+                let Some(subtype) = subtype.get("type").and_then(serde_json::Value::as_str) else {
+                    continue;
+                };
+                supertypes_of.entry(subtype).or_default().push(name);
+            }
         }
 
-        "call" => RoleSet::of(Invocation).with(Expression),
-        "attribute" | "subscript" => RoleSet::of(Access).with(Expression),
-        "assignment" | "augmented_assignment" => {
-            RoleSet::of(Assignment).with(Binding).with(Expression)
+        for entry in entries {
+            let Some(kind) = entry.get("type").and_then(serde_json::Value::as_str) else {
+                continue;
+            };
+            let mut terms = HashSet::new();
+            ancestors(kind, &supertypes_of, &mut terms);
+            let mut set = RoleSet::empty();
+            for term in &terms {
+                match Role::from_term(term) {
+                    Some(role) => set = set.with(role),
+                    None => {
+                        unknown.insert((*term).to_string());
+                    }
+                }
+            }
+            table.merge(kind, set);
         }
 
-        "integer" | "float" | "true" | "false" | "none" => RoleSet::of(Literal).with(Expression),
-        "string" | "concatenated_string" => RoleSet::of(Literal).with(Str).with(Expression),
-        "identifier" => RoleSet::of(Identifier).with(Expression),
-        "comment" => RoleSet::of(Comment),
-
-        "import_statement" | "import_from_statement" => {
-            RoleSet::of(Directive).with(Binding).with(Statement)
+        // Facet tier: direct membership, listed per facet.
+        let facets = roles
+            .get("facets")
+            .and_then(serde_json::Value::as_object)
+            .ok_or_else(|| "roles.json carries no facets object".to_string())?;
+        for (term, members) in facets {
+            let role = match Role::from_term(term) {
+                Some(role) => role,
+                None => {
+                    unknown.insert(term.clone());
+                    continue;
+                }
+            };
+            let Some(members) = members.as_array() else {
+                continue;
+            };
+            for member in members {
+                let Some(kind) = member.as_str() else {
+                    continue;
+                };
+                table.merge(kind, RoleSet::of(role));
+            }
         }
-        "expression_statement" | "assert_statement" | "pass_statement" => RoleSet::of(Statement),
 
-        _ => RoleSet::empty(),
+        table.unknown_terms = unknown.into_iter().collect();
+        table.unknown_terms.sort();
+        Ok(table)
+    }
+
+    fn merge(&mut self, kind: &str, roles: RoleSet) {
+        let entry = self.by_kind.entry(kind.to_string()).or_default();
+        for role in roles.iter() {
+            *entry = entry.with(role);
+        }
+    }
+
+    pub fn roles(&self, kind: &str) -> RoleSet {
+        self.by_kind.get(kind).copied().unwrap_or_default()
+    }
+
+    /// Terms the grammar declares that [`Role`] has no variant for. Empty is
+    /// the healthy state; anything here means the vocabulary moved.
+    pub fn unknown_terms(&self) -> &[String] {
+        &self.unknown_terms
+    }
+
+    pub fn len(&self) -> usize {
+        self.by_kind.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.by_kind.is_empty()
+    }
+}
+
+/// Every supertype reachable from `kind`, transitively, excluding `kind`.
+fn ancestors<'a>(
+    kind: &'a str,
+    supertypes_of: &HashMap<&'a str, Vec<&'a str>>,
+    out: &mut HashSet<&'a str>,
+) {
+    let Some(parents) = supertypes_of.get(kind) else {
+        return;
+    };
+    for parent in parents {
+        if out.insert(parent) {
+            ancestors(parent, supertypes_of, out);
+        }
     }
 }

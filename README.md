@@ -25,7 +25,14 @@ cargo test --features dev  # the rules, against real parsed source
 ```
 
 `dev` adds a parser and a `beamte` binary so rules can be developed against
-real files. It is off by default and never reaches a consumer.
+real files. It is off by default and never reaches a consumer. It parses with
+treebank's own grammar and reads roles out of the manifests that grammar ships,
+so a rule is exercised against treebank's answers rather than a table written
+here.
+
+treebank is private and not yet on crates.io, so it is taken as a git
+dependency and CI needs a `TREEBANK_TOKEN` secret with read access to it. Both
+go away once treebank is published.
 
 ```sh
 cargo run --features dev -- check   some_test.py   # findings

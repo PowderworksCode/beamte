@@ -11,11 +11,17 @@ publish = false
 # why that costs consumers nothing.
 [features]
 default = []
-dev = ["dep:tree-sitter", "dep:tree-sitter-python"]
+dev = ["dep:tree-sitter", "dep:treebank-python", "dep:serde_json"]
 
 [dependencies]
-tree-sitter = { version = "0.25", optional = true }
-tree-sitter-python = { version = "0.25", optional = true }
+tree-sitter = { version = "0.26", optional = true }
+serde_json = { version = "1", optional = true }
+# Not on crates.io yet, so a git dependency rather than a path one: this
+# resolves anywhere with repo access, where a path dependency would need a
+# full powderworks/ checkout. It is optional and off by default, so it never
+# reaches a consumer. It does block `cargo publish` until treebank is
+# released, which is why the crate is `publish = false` for now.
+treebank-python = { git = "https://github.com/PowderworksCode/treebank", optional = true }
 
 [[bin]]
 name = "beamte"

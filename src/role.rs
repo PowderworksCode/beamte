@@ -10,13 +10,14 @@
 /// A role a node carries. Names match treebank's underscore-prefixed terms.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Role {
-    // Structural, table tier.
+    // Structural.
     Statement,
     Expression,
     Declaration,
     Member,
     Directive,
-    // Operational, table tier.
+    Body,
+    // Operational.
     ControlFlow,
     Branch,
     Loop,
@@ -25,25 +26,35 @@ pub enum Role {
     Invocation,
     Access,
     Literal,
-    // Facet tier.
-    Callable,
-    Binding,
-    Scope,
-    Argument,
-    Parameter,
+    // Naming and shape.
+    Name,
+    Identifier,
+    Attribute,
+    Modifier,
+    Type,
+    Pattern,
+    Interpolation,
     Str,
     Comment,
-    Identifier,
+    // Callables and their pieces.
+    Callable,
+    Parameter,
+    Argument,
+    // Binding and structure.
+    Binding,
+    Scope,
+    Clause,
 }
 
 impl Role {
     /// Every role, in declaration order.
-    pub const ALL: [Role; 21] = [
+    pub const ALL: [Role; 29] = [
         Role::Statement,
         Role::Expression,
         Role::Declaration,
         Role::Member,
         Role::Directive,
+        Role::Body,
         Role::ControlFlow,
         Role::Branch,
         Role::Loop,
@@ -52,14 +63,21 @@ impl Role {
         Role::Invocation,
         Role::Access,
         Role::Literal,
-        Role::Callable,
-        Role::Binding,
-        Role::Scope,
-        Role::Argument,
-        Role::Parameter,
+        Role::Name,
+        Role::Identifier,
+        Role::Attribute,
+        Role::Modifier,
+        Role::Type,
+        Role::Pattern,
+        Role::Interpolation,
         Role::Str,
         Role::Comment,
-        Role::Identifier,
+        Role::Callable,
+        Role::Parameter,
+        Role::Argument,
+        Role::Binding,
+        Role::Scope,
+        Role::Clause,
     ];
 
     /// The treebank term, as it appears in a query or in `roles.json`.
@@ -70,6 +88,7 @@ impl Role {
             Role::Declaration => "_declaration",
             Role::Member => "_member",
             Role::Directive => "_directive",
+            Role::Body => "_body",
             Role::ControlFlow => "_control_flow",
             Role::Branch => "_branch",
             Role::Loop => "_loop",
@@ -78,19 +97,36 @@ impl Role {
             Role::Invocation => "_invocation",
             Role::Access => "_access",
             Role::Literal => "_literal",
-            Role::Callable => "_callable",
-            Role::Binding => "_binding",
-            Role::Scope => "_scope",
-            Role::Argument => "_argument",
-            Role::Parameter => "_parameter",
+            Role::Name => "_name",
+            Role::Identifier => "_identifier",
+            Role::Attribute => "_attribute",
+            Role::Modifier => "_modifier",
+            Role::Type => "_type",
+            Role::Pattern => "_pattern",
+            Role::Interpolation => "_interpolation",
             Role::Str => "_string",
             Role::Comment => "_comment",
-            Role::Identifier => "_identifier",
+            Role::Callable => "_callable",
+            Role::Parameter => "_parameter",
+            Role::Argument => "_argument",
+            Role::Binding => "_binding",
+            Role::Scope => "_scope",
+            Role::Clause => "_clause",
         }
     }
 
-    const fn bit(self) -> u32 {
-        1u32 << (self as u32)
+    /// The role a treebank term names, if beamte knows it.
+    ///
+    /// `None` means the vocabulary has grown a term this enum has not learned
+    /// yet. A host should treat that as a role it cannot reason about rather
+    /// than as an error; the test in `tests/vocabulary.rs` is what keeps the
+    /// gap from going unnoticed.
+    pub fn from_term(term: &str) -> Option<Role> {
+        Role::ALL.into_iter().find(|role| role.as_str() == term)
+    }
+
+    const fn bit(self) -> u64 {
+        1u64 << (self as u64)
     }
 }
 
@@ -98,7 +134,7 @@ impl Role {
 /// once: a `function_definition` is a `_declaration`, a `_scope` and a
 /// `_callable`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct RoleSet(u32);
+pub struct RoleSet(u64);
 
 impl RoleSet {
     pub const fn empty() -> Self {
