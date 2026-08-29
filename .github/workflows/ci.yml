@@ -23,8 +23,16 @@ jobs:
       - name: no dependencies without default features
         run: |
           set -euo pipefail
-          deps=$(cargo tree --locked --no-default-features --prefix none | sort -u | grep -v '^beamte ' | wc -l)
-          [ "$deps" -eq 0 ] || { cargo tree --locked --no-default-features; echo "::error::expected no dependencies, found $deps"; exit 1; }
+          # `grep -vc` with `|| true`: under pipefail a grep that matches
+          # nothing exits 1, which is the success case here and would
+          # otherwise fail the step for having no dependencies.
+          deps=$(cargo tree --locked --no-default-features --prefix none | sort -u | grep -vc '^beamte ' || true)
+          if [ "$deps" -ne 0 ]; then
+            cargo tree --locked --no-default-features
+            echo "::error::expected no dependencies, found $deps"
+            exit 1
+          fi
+          echo "no dependencies without default features"
       - run: cargo build --locked
       - run: cargo test --locked
       - run: cargo clippy --locked --all-targets -- -D warnings
