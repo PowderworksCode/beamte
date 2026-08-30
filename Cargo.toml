@@ -24,13 +24,13 @@ categories = ["development-tools::testing", "development-tools"]
 # The published library has one dependency and can be built with none.
 # Developing a rule means running it against a real file, which needs a parser
 # and a grammar; both live in the `beamte-dev` crate beside this one, which is
-# never published. DESIGN.md 8 explains why that costs consumers nothing.
+# never published. notes/DESIGN.md §8 explains why that costs consumers nothing.
 [features]
 # `manifests` reads a grammar's node-types.json and roles.json into a role
 # table. On by default because every host needs it and doing it per host is
 # how two hosts come to disagree; `default-features = false` still gives a
 # library with no dependencies at all. It reads them with treebank's own
-# types -- DESIGN.md has always said the vocabulary comes from treebank, and
+# types -- notes/DESIGN.md has always said the vocabulary comes from treebank, and
 # a second reading of the same manifests is how the two come to disagree
 # about what derives from what.
 default = ["manifests"]

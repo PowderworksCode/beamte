@@ -1,7 +1,7 @@
 //! What a rule returns.
 //!
 //! Deliberately not a report: no severity, no formatting, no suppression.
-//! Those are the host's, per DESIGN.md §6.
+//! Those are the host's, per notes/DESIGN.md §6.
 
 use crate::node::Span;
 

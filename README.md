@@ -12,14 +12,20 @@ and owns no configuration — those are the host's, and
 [straitjacket](https://github.com/PowderworksCode/straitjacket) is the first
 host.
 
-**[`DESIGN.md`](DESIGN.md) is the authoritative document** — the rule
+**[`notes/DESIGN.md`](notes/DESIGN.md) is the authoritative document** — the rule
 catalogue and its provenance, the fidelity/resilience/precision spine, the
 boundary between this library and its host, the substrate it assumes, and the
 open questions. Start there.
 
 ## Development
 
+`scripts/dev.sh` points git at the committed hooks and runs both halves of the
+gate in the order CI checks them, starting with the no-default-features build,
+which is the claim the crate makes about itself.
+
 ```sh
+scripts/dev.sh
+
 cargo test                 # the library, with no parser and no dependencies
 cargo test --workspace     # the rules, against real parsed source
 ```

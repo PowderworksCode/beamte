@@ -4,7 +4,7 @@
 //! restates a post from the Google Testing Blog and carries its citation.
 //!
 //! It parses nothing, reads no files, writes no output format and owns no
-//! configuration: those belong to the host running the scan. `DESIGN.md` is
+//! configuration: those belong to the host running the scan. `notes/DESIGN.md` is
 //! the authoritative document.
 
 pub mod finding;

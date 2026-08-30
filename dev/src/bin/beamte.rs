@@ -1,4 +1,4 @@
-//! The development binary. `required-features = ["dev"]`, so it is never
+//! The development binary. It lives in `beamte-dev`, so it is never
 //! built for a consumer.
 //!
 //! `check` is the inner loop. `explain` is the one that matters: when a rule
