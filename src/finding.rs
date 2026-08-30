@@ -89,11 +89,18 @@ pub struct Citation {
 #[derive(Debug, Clone, Copy)]
 pub struct Rule {
     pub id: RuleId,
-    pub property: Property,
+    /// The property of a good test this defends, for the rules that defend
+    /// one. `None` for a rule that is not about tests: the three properties
+    /// are properties of a test, and stretching one to cover a rule about
+    /// how code is arranged would make the taxonomy mean less.
+    pub property: Option<Property>,
     pub scope: Scope,
     pub summary: &'static str,
     pub instruction: &'static str,
-    pub citation: Citation,
+    /// The post this restates, for the rules that restate one. `None` for a
+    /// rule that states a structural fact rather than an argument somebody
+    /// published -- see notes/DESIGN.md §5.6.
+    pub citation: Option<Citation>,
 }
 
 /// One step of the reasoning behind a finding.
@@ -110,7 +117,7 @@ pub struct EvidenceStep {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Finding {
     pub rule: RuleId,
-    pub property: Property,
+    pub property: Option<Property>,
     pub span: Span,
     pub message: String,
     pub help: Option<String>,

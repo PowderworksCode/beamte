@@ -6,11 +6,14 @@ that fail when nothing broke, tests whose failure tells you nothing.
 
 Three ideas define it:
 
-1. **The rules are not opinions.** Every rule in this document is a
+1. **The test-quality rules are not opinions.** Every rule about tests is a
    restatement of a post on the Google Testing Blog, which across nineteen
    years published something close to a specification: here is a test, here
    is the structural property that makes it bad, here is the same test
-   without that property. Every finding cites the post it was issued under.
+   without that property. Every such finding names the post behind it. The
+   catalogue has since taken rules that say nothing about tests and have no
+   post behind them; those carry no citation rather than a stretched one,
+   and §5.6 records why.
 2. **One rule, every language.** Rules are written against treebank's node
    vocabulary — `_loop`, `_branch`, `_invocation`, `_callable` — which is
    enforced in the parse table rather than maintained by hand, and means the
@@ -428,6 +431,62 @@ tree — the wrapper case is really §10.2's resolution problem wearing another
 hat — and a *write* through the same surface is reported in the same words as
 a read, because the surface is the finding and the fix is the same edge
 either way.
+
+### 5.6 `const-declaration`, and a rule with nothing to cite
+
+#### `const-declaration` — no property
+*No post; states a structural fact.*
+
+A `SCREAMING_SNAKE_CASE` name, reported at the point that *introduces* it. A
+constant is a decision the program has made — a limit, a retry count, a path,
+a key, a magic number somebody named — and scattered through a tree those
+decisions never read as a set, so the same one gets made twice under two
+names. Which files may declare a constant is policy about a repository, so
+the host names those files, exactly as it names the environment's edge for
+§5.5.
+
+Signal: a `(_binding)` that is neither a `(_directive)` nor a `(_parameter)`,
+whose bound name is screaming snake case, outside any `(_callable)`.
+
+**This is the rule that needed a tree.** Its whole content is the difference
+between declaring a name and using one, and text cannot tell those apart
+without a per-language table of declaration keywords — which is a parser
+written badly, and was the first attempt. The vocabulary answers it in one
+form for every grammar:
+
+| shape | roles | verdict |
+|---|---|---|
+| `MAX_SIZE = 3` | `_binding` | declared |
+| `const MAX_SIZE: u8 = 3` | `_binding` | declared |
+| `from os import MAX_SIZE` | `_binding` `_directive` | imported |
+| `def f(MAX_SIZE)` | `_binding` `_parameter` | a parameter |
+| `n > MAX_SIZE` | — | a use |
+
+A name bound inside a `(_callable)` is a local: nobody can move it to another
+file, so asking for that would ask for something impossible. An enum member
+written as an assignment in a class body still draws a finding though it
+cannot move either; telling an enum from a class needs its base class, which
+is a fact about a library rather than about the tree, and the host licenses
+those.
+
+#### Two fields that a rule may now leave empty
+
+This rule has **no property and no citation**, and the catalogue demanded
+both until now. §1 said every rule restates a post on the Google Testing
+Blog; that still holds for the test-quality catalogue and is why those rules
+are not opinions. This rule breaks it, and the honest options were to stretch
+a citation over an argument the post does not make, or to say so.
+
+So `Rule::property` and `Rule::citation` are `Option`. A rule either restates
+a published argument — and carries it, so a finding can cite it — or states a
+structural fact about code and cites nothing. Inventing an authority for the
+second kind would cost exactly the property §1 exists to protect.
+
+`Property` stays a closed set of three, because all three are properties of a
+*test*: fidelity, resilience, precision. A rule about how a program arranges
+its code has none of them, and adding a fourth to cover it would make the
+taxonomy mean less rather than more. The host maps `None` to whatever severity its
+own policy wants.
 
 ## 6. The boundary
 

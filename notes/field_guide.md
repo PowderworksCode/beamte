@@ -19,15 +19,21 @@ is a bug, and which one is a decision to be recorded there. Several source files
 cite it by section number, so renumbering it means grepping for
 `notes/DESIGN.md`.
 
-Today the catalogue has two rules — `test-logic` (`src/rules/test_logic.rs`)
-and `env-read` (`src/rules/env_read.rs`) — and one grammar wired up for
-development (Python). The scaffolding around them is the point; adding a rule
+Today the catalogue has three rules — `test-logic`
+(`src/rules/test_logic.rs`), `env-read` (`src/rules/env_read.rs`) and
+`const-declaration` (`src/rules/const_declaration.rs`) — and one grammar
+wired up for development (Python). The scaffolding around them is the point; adding a rule
 is meant to be the small part.
 
-The two rules differ in *scope*, which every `Rule` now declares: `test-logic`
-reads test bodies (`Scope::Tests`), `env-read` reads any source file
-(`Scope::File`). A host deciding which files to hand a rule reads the scope
-rather than guessing; `notes/DESIGN.md` §5.5 records why the catalogue widened.
+They differ in *scope*, which every `Rule` declares: `test-logic` reads test
+bodies (`Scope::Tests`), the other two read any source file (`Scope::File`).
+A host deciding which files to hand a rule reads the scope rather than
+guessing; `notes/DESIGN.md` §5.5 records why the catalogue widened.
+
+`property` and `citation` are `Option`, because `const-declaration` has
+neither: the rule says nothing about tests, and no post argues it. A rule
+that restates a published argument carries it; one that states a structural
+fact cites nothing rather than stretching an authority over it. §5.6 records that.
 
 ## The two builds, and why `cargo test -p beamte` proves less than it looks
 
@@ -39,7 +45,7 @@ cargo test --workspace   # the rules, against real parsed source
 **`cargo test -p beamte` runs no rule against any source.** The rules are
 exercised from `beamte-dev`, the harness crate beside the library, so a green
 run of the library alone has not parsed a thing. Use `--workspace` and check
-the count: it is 46, and 18 of those are the library's own.
+the count: 69, of which 21 belong to the library itself.
 
 This used to be sharper and worse. The harness was a `dev` feature on the
 library, both integration tests opened with `#![cfg(feature = "dev")]`, and a

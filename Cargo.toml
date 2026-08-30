@@ -11,7 +11,7 @@ unwrap_used = "deny"
 
 [package]
 name = "beamte"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 description = "Test-quality rules over treebank trees. Trees in, findings out."
 repository = "https://github.com/PowderworksCode/beamte"

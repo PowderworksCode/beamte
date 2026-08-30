@@ -43,7 +43,7 @@ use crate::role::Role;
 
 pub const RULE: Rule = Rule {
     id: RuleId::new("env-read"),
-    property: Property::Resilience,
+    property: Some(Property::Resilience),
     scope: Scope::File,
     summary: "code reads the process environment where nothing declares it",
     instruction: "Do not read environment variables in the middle of ordinary \
@@ -51,11 +51,11 @@ pub const RULE: Rule = Rule {
                   to, and no small test of that code can stay hermetic. Read \
                   the environment once, at a declared configuration edge, and \
                   pass the values on as arguments.",
-    citation: Citation {
+    citation: Some(Citation {
         title: "Test Sizes",
         url: "https://testing.googleblog.com/2010/12/test-sizes.html",
         date: "2010-12-13",
-    },
+    }),
 };
 
 /// The languages this rule has an environment surface for.

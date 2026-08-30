@@ -22,17 +22,17 @@ use crate::role::Role;
 
 pub const RULE: Rule = Rule {
     id: RuleId::new("test-logic"),
-    property: Property::Precision,
+    property: Some(Property::Precision),
     scope: Scope::Tests,
     summary: "a test computes its own expectations instead of stating them",
     instruction: "Do not put loops or conditionals in a test body. A test is a \
                   concrete input/output pair: state the values directly rather \
                   than computing them, and split the cases into separate tests.",
-    citation: Citation {
+    citation: Some(Citation {
         title: "Testing on the Toilet: Don't Put Logic in Tests",
         url: "https://testing.googleblog.com/2014/07/testing-on-toilet-dont-put-logic-in.html",
         date: "2014-07-31",
-    },
+    }),
 };
 
 pub fn check<'t, N: Node<'t>>(unit: &Unit<'t, N>, model: &TestModel, out: &mut Vec<Finding>) {

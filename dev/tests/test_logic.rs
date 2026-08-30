@@ -158,7 +158,7 @@ def test_registers_every_user():
 "#,
     );
 
-    assert_eq!(found[0].property, beamte::Property::Precision);
+    assert_eq!(found[0].property, Some(beamte::Property::Precision));
     assert!(found[0].help.is_some());
 }
 
@@ -168,15 +168,22 @@ fn every_rule_cites_the_post_it_restates() {
 
     assert!(!catalogue.is_empty());
     assert_eq!(catalogue[0].id.as_str(), "test-logic");
-    assert_eq!(catalogue[0].citation.date, "2014-07-31");
+    assert_eq!(
+        catalogue[0].citation.map(|citation| citation.date),
+        Some("2014-07-31")
+    );
     for rule in catalogue {
+        // A rule that restates a post cites it. A rule that states a
+        // structural fact cites nothing, and must not invent an authority --
+        // notes/DESIGN.md 5.6.
+        let Some(citation) = rule.citation else {
+            continue;
+        };
         assert!(
-            rule.citation
-                .url
-                .starts_with("https://testing.googleblog.com/"),
+            citation.url.starts_with("https://testing.googleblog.com/"),
             "{} cites {}, which is not the blog",
             rule.id,
-            rule.citation.url
+            citation.url
         );
     }
 }

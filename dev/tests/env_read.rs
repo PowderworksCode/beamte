@@ -35,7 +35,7 @@ def load():
         "`SLOTH_WALKS` read from the process environment (`os.getenv`)"
     );
     assert_eq!(found[0].span.line, 3);
-    assert_eq!(found[0].property, beamte::Property::Resilience);
+    assert_eq!(found[0].property, Some(beamte::Property::Resilience));
     assert!(found[0].help.is_some());
 }
 
