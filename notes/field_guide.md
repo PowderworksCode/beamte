@@ -45,7 +45,7 @@ cargo test --workspace   # the rules, against real parsed source
 **`cargo test -p beamte` runs no rule against any source.** The rules are
 exercised from `beamte-dev`, the harness crate beside the library, so a green
 run of the library alone has not parsed a thing. Use `--workspace` and check
-the count: it is 69, and 21 of those are the library's own.
+the count: 69, of which 21 belong to the library itself.
 
 This used to be sharper and worse. The harness was a `dev` feature on the
 library, both integration tests opened with `#![cfg(feature = "dev")]`, and a

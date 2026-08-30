@@ -10,10 +10,10 @@ Three ideas define it:
    restatement of a post on the Google Testing Blog, which across nineteen
    years published something close to a specification: here is a test, here
    is the structural property that makes it bad, here is the same test
-   without that property. Every such finding cites the post it was issued
-   under. The catalogue has since taken rules that are not about tests and
-   have no post behind them; those carry no citation rather than a stretched
-   one, and §5.6 records why.
+   without that property. Every such finding names the post behind it. The
+   catalogue has since taken rules that say nothing about tests and have no
+   post behind them; those carry no citation rather than a stretched one,
+   and §5.6 records why.
 2. **One rule, every language.** Rules are written against treebank's node
    vocabulary — `_loop`, `_branch`, `_invocation`, `_callable` — which is
    enforced in the parse table rather than maintained by hand, and means the
@@ -437,12 +437,13 @@ either way.
 #### `const-declaration` — no property
 *No post; states a structural fact.*
 
-A `SCREAMING_SNAKE_CASE` name, reported where it is *introduced*. A constant
-is a decision the program has made — a limit, a retry count, a path, a key, a
-magic number somebody named — and scattered through a tree those decisions
-cannot be read as a set, so the same one gets made twice under two names.
-Where a constant *may* be declared is policy about a repository, so the host
-names those files, exactly as it names the environment's edge for §5.5.
+A `SCREAMING_SNAKE_CASE` name, reported at the point that *introduces* it. A
+constant is a decision the program has made — a limit, a retry count, a path,
+a key, a magic number somebody named — and scattered through a tree those
+decisions never read as a set, so the same one gets made twice under two
+names. Which files may declare a constant is policy about a repository, so
+the host names those files, exactly as it names the environment's edge for
+§5.5.
 
 Signal: a `(_binding)` that is neither a `(_directive)` nor a `(_parameter)`,
 whose bound name is screaming snake case, outside any `(_callable)`.
@@ -461,16 +462,17 @@ form for every grammar:
 | `def f(MAX_SIZE)` | `_binding` `_parameter` | a parameter |
 | `n > MAX_SIZE` | — | a use |
 
-A name bound inside a `(_callable)` is a local: it cannot be moved to another
-file, so asking for it would be asking for something impossible. An enum
-member written as an assignment in a class body is reported though it cannot
-move either; telling an enum from a class needs its base class, which is a
-fact about a library rather than about the tree, and the host licenses those.
+A name bound inside a `(_callable)` is a local: nobody can move it to another
+file, so asking for that would ask for something impossible. An enum member
+written as an assignment in a class body still draws a finding though it
+cannot move either; telling an enum from a class needs its base class, which
+is a fact about a library rather than about the tree, and the host licenses
+those.
 
 #### Two fields that a rule may now leave empty
 
-This rule has **no property and no citation**, and both of those were
-required before it. §1 said every rule restates a post on the Google Testing
+This rule has **no property and no citation**, and the catalogue demanded
+both until now. §1 said every rule restates a post on the Google Testing
 Blog; that still holds for the test-quality catalogue and is why those rules
 are not opinions. This rule breaks it, and the honest options were to stretch
 a citation over an argument the post does not make, or to say so.

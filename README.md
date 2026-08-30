@@ -11,8 +11,8 @@ Every rule declares its scope. Most read test bodies; two read any source
 file. `env-read` flags code reading the process environment where nothing
 declares it — the input no signature admits to, and the reason a small test
 above it can never be hermetic. `const-declaration` reports a
-`SCREAMING_SNAKE_CASE` name where it is introduced rather than where it is
-used, which is the distinction that needs a tree rather than a regex.
+`SCREAMING_SNAKE_CASE` name at the point that introduces it rather than at
+every point that uses it — the distinction that needs a tree, not a regex.
 
 It is a library. It parses nothing, reads no files, writes no output format
 and owns no configuration — those are the host's, and
