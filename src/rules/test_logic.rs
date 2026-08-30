@@ -39,14 +39,14 @@ pub fn check<'t, N: Node<'t>>(unit: &Unit<'t, N>, model: &TestModel, out: &mut V
         if !model.is_test(node) {
             return Visit::Descend;
         }
-        check_body(node, out);
+        check_body(node, model, out);
         // The test's own subtree has been walked by `check_body`, and a
         // callable nested inside a test is part of that test.
         Visit::Skip
     });
 }
 
-fn check_body<'t, N: Node<'t>>(test: N, out: &mut Vec<Finding>) {
+fn check_body<'t, N: Node<'t>>(test: N, model: &TestModel, out: &mut Vec<Finding>) {
     let mut first = true;
     walk(test, &mut |node| {
         // `test` itself carries no control-flow role, but skipping the root
@@ -55,11 +55,14 @@ fn check_body<'t, N: Node<'t>>(test: N, out: &mut Vec<Finding>) {
             first = false;
             return Visit::Descend;
         }
-        let Some(kind) = Logic::of(node) else {
+        let Some(kind) = Logic::of(node, model) else {
             return Visit::Descend;
         };
+        // A block-iterating call reports the method rather than the node
+        // kind: `each` is what the reader wrote, `call_expression` is not.
+        let label = model.iteration_method(node).unwrap_or_else(|| node.kind());
         out.push(
-            Finding::new(&RULE, node.span(), kind.message(node.kind()))
+            Finding::new(&RULE, node.span(), kind.message(label))
                 .with_help(kind.help().to_string()),
         );
         // Report the outermost occurrence only.
@@ -74,9 +77,9 @@ enum Logic {
 }
 
 impl Logic {
-    fn of<'t, N: Node<'t>>(node: N) -> Option<Logic> {
+    fn of<'t, N: Node<'t>>(node: N, model: &TestModel) -> Option<Logic> {
         // `_loop` first: a construct that is both is a loop to a reader.
-        if node.has_role(Role::Loop) {
+        if node.has_role(Role::Loop) || model.is_iteration(node) {
             Some(Logic::Loop)
         } else if node.has_role(Role::Branch) {
             Some(Logic::Branch)
