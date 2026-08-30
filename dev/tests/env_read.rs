@@ -90,6 +90,22 @@ def load(name):
 }
 
 #[test]
+fn a_literal_default_after_a_dynamic_name_does_not_name_the_read() {
+    let found = findings(
+        r#"
+def load(name):
+    return os.environ.get(name, "sh")
+"#,
+    );
+
+    assert_eq!(found.len(), 1);
+    assert_eq!(
+        found[0].message, "the process environment read through `os.environ.get`",
+        "the read is of `name`, and `sh` must not be claimed as it"
+    );
+}
+
+#[test]
 fn a_mention_in_a_comment_or_a_string_is_not_a_read() {
     let found = findings(
         r#"

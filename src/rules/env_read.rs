@@ -22,11 +22,14 @@
 //! `System.getenv`, `ENV.fetch`) or an `_access` that reaches it directly
 //! (`process.env`, `os.environ[…]`, `ENV[…]`). Matching the node rather than
 //! the text is what keeps a mention in a comment or a string from being a
-//! finding. Two misses are accepted and named here rather than guessed at: a
-//! read behind an alias (`use std::env::var as v`) and one behind a local
-//! wrapper are invisible to a single tree, and a write through the same
-//! surface (`os.environ["X"] = …`) is reported in the same words as a read —
-//! the surface is the finding, and the fix is the same edge either way.
+//! finding. Three misses are accepted and named here rather than guessed at:
+//! a read behind an alias (`use std::env::var as v`) and one behind a local
+//! wrapper are invisible to a single tree; a read inside a Rust macro's
+//! arguments is lexed as a token tree rather than parsed, so
+//! `assert!(env::var("X").is_ok())` carries no invocation node to match; and
+//! a write through the same surface (`os.environ["X"] = …`) is reported in
+//! the same words as a read — the surface is the finding, and the fix is the
+//! same edge either way.
 //!
 //! Rust's `env!` and `option_env!` are deliberately not flagged: they resolve
 //! when the build system runs, against variables the build declares, and a
@@ -94,7 +97,7 @@ pub fn check<'t, N: Node<'t>>(unit: &Unit<'t, N>, model: &TestModel, out: &mut V
 }
 
 fn finding<'t, N: Node<'t>>(node: N, spelling: &str) -> Finding {
-    let message = match named_variable(node) {
+    let message = match named_variable(node, spelling) {
         Some(name) => format!("`{name}` read from the process environment (`{spelling}`)"),
         None => format!("the process environment read through `{spelling}`"),
     };
@@ -105,12 +108,30 @@ fn finding<'t, N: Node<'t>>(node: N, spelling: &str) -> Finding {
     )
 }
 
-/// The variable being read, when the read names it with a literal.
+/// The variable being read, when the read names it.
 ///
-/// The first string under the read is the name in every surface here —
-/// `var("SLOTH_WALKS")`, `environ["PATH"]`, `getenv("HOME")` — and a read
-/// with no literal is reported without one rather than guessed at.
-fn named_variable<'t, N: Node<'t>>(node: N) -> Option<String> {
+/// Two spellings name one: a literal directly after the surface —
+/// `var("SLOTH_WALKS")`, `environ["PATH"]`, `getenv("HOME")` — and a member
+/// read whose name is the member, `process.env.HOME`. A read whose first
+/// argument is not a literal is reported without a name rather than named
+/// after whatever literal came later: `environ.get(key, "sh")` reads `key`,
+/// not `sh`, and a finding must not claim otherwise.
+fn named_variable<'t, N: Node<'t>>(node: N, spelling: &str) -> Option<String> {
+    let rest = first_line(node.text()).strip_prefix(spelling)?;
+    if let Some(member) = rest.strip_prefix('.') {
+        let name: String = member
+            .chars()
+            .take_while(|c| c.is_alphanumeric() || *c == '_' || *c == '$')
+            .collect();
+        return confine(name);
+    }
+    let head = rest.trim_start_matches(['(', '[', ' ']);
+    let quoted = head
+        .trim_start_matches(['b', 'r', 'f', 'u'])
+        .starts_with(['"', '\'', '`']);
+    if !quoted {
+        return None;
+    }
     let mut name = None;
     walk(node, &mut |inner| {
         if name.is_some() {
@@ -122,7 +143,11 @@ fn named_variable<'t, N: Node<'t>>(node: N) -> Option<String> {
         }
         Visit::Descend
     });
-    name.filter(|name| !name.is_empty() && name.len() <= 60)
+    name.and_then(confine)
+}
+
+fn confine(name: String) -> Option<String> {
+    Some(name).filter(|name| !name.is_empty() && name.len() <= 60)
 }
 
 fn unquote(text: &str) -> String {
