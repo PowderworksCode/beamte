@@ -471,9 +471,9 @@ fact about a library rather than about the tree, and the host licenses those.
 
 This rule has **no property and no citation**, and both of those were
 required before it. §1 said every rule restates a post on the Google Testing
-Blog; that is still true of the test-quality catalogue and is why those rules
-are not opinions. It is not true of this one, and the honest options were to
-stretch a citation over an argument the post does not make, or to say so.
+Blog; that still holds for the test-quality catalogue and is why those rules
+are not opinions. This rule breaks it, and the honest options were to stretch
+a citation over an argument the post does not make, or to say so.
 
 So `Rule::property` and `Rule::citation` are `Option`. A rule either restates
 a published argument — and carries it, so a finding can cite it — or states a
@@ -481,9 +481,9 @@ structural fact about code and cites nothing. Inventing an authority for the
 second kind would cost exactly the property §1 exists to protect.
 
 `Property` stays a closed set of three, because all three are properties of a
-*test*: fidelity, resilience, precision. A rule about how code is arranged
-has none of them, and adding a fourth to cover it would make the taxonomy
-mean less rather than more. The host maps `None` to whatever severity its
+*test*: fidelity, resilience, precision. A rule about how a program arranges
+its code has none of them, and adding a fourth to cover it would make the
+taxonomy mean less rather than more. The host maps `None` to whatever severity its
 own policy wants.
 
 ## 6. The boundary

@@ -31,9 +31,9 @@ A host deciding which files to hand a rule reads the scope rather than
 guessing; `notes/DESIGN.md` §5.5 records why the catalogue widened.
 
 `property` and `citation` are `Option`, because `const-declaration` has
-neither: it is not about tests, and no post argues it. A rule that restates a
-published argument carries it; one that states a structural fact cites
-nothing rather than stretching an authority over it. §5.6 records that.
+neither: the rule says nothing about tests, and no post argues it. A rule
+that restates a published argument carries it; one that states a structural
+fact cites nothing rather than stretching an authority over it. §5.6 records that.
 
 ## The two builds, and why `cargo test -p beamte` proves less than it looks
 
