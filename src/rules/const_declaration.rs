@@ -67,6 +67,7 @@ pub fn check<'t, N: Node<'t>>(unit: &Unit<'t, N>, _model: &TestModel, out: &mut 
         if node.has_role(Role::Binding)
             && !node.has_role(Role::Directive)
             && !node.has_role(Role::Parameter)
+            && !wraps_a_binding(node)
         {
             for (name, span) in bound_names(node) {
                 if !screaming_snake(&name) {
@@ -88,6 +89,18 @@ pub fn check<'t, N: Node<'t>>(unit: &Unit<'t, N>, _model: &TestModel, out: &mut 
             Visit::Descend
         }
     });
+}
+
+/// Whether a binding is only the container of another.
+///
+/// TypeScript spells `const MAX_SIZE = 3` as a `lexical_declaration` holding a
+/// `variable_declarator`, and both are bindings. Reporting the outer one
+/// names the constant twice and, worse, reads its whole subtree as the
+/// target -- so every identifier in the initialiser becomes a declaration,
+/// which is the exact confusion between declaring and using that this rule
+/// exists to avoid. The innermost binding is the one that names something.
+fn wraps_a_binding<'t, N: Node<'t>>(node: N) -> bool {
+    node.children().any(|child| child.has_role(Role::Binding))
 }
 
 /// The names a binding introduces, with where each one sits.
