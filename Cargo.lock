@@ -231,7 +231,7 @@ dependencies = [
 [[package]]
 name = "treebank-python"
 version = "0.1.0"
-source = "git+https://github.com/PowderworksCode/treebank#abe1288f958c36bf4d031561bf9512b912f1141a"
+source = "git+https://github.com/PowderworksCode/treebank#4e57bdfd0d1b9b57d4a9ab3606a9a5174a0fedad"
 dependencies = [
  "cc",
  "tree-sitter-language",
