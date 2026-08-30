@@ -1,1 +1,6 @@
 /target
+# `vale sync` downloads the proselint and write-good packages here, where
+# .vale.ini's StylesPath points. They are fetched, not written: CI's
+# vale-action syncs its own copy, and anyone running vale locally regenerates
+# them. Committing them would put a third-party corpus in the history.
+/.vale/
