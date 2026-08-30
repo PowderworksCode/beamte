@@ -7,14 +7,14 @@ repository = "https://github.com/PowderworksCode/beamte"
 publish = false
 
 # The published library has no dependencies at all. `dev` adds a parser and a
-# binary so rules can be developed against real files; DESIGN.md §8 explains
+# binary so rules can be developed against real files; notes/DESIGN.md §8 explains
 # why that costs consumers nothing.
 [features]
 # `manifests` reads a grammar's node-types.json and roles.json into a role
 # table. On by default because every host needs it and doing it per host is
 # how two hosts come to disagree; `default-features = false` still gives a
 # library with no dependencies at all. It reads them with treebank's own
-# types -- DESIGN.md has always said the vocabulary comes from treebank, and
+# types -- notes/DESIGN.md has always said the vocabulary comes from treebank, and
 # a second reading of the same manifests is how the two come to disagree
 # about what derives from what.
 default = ["manifests"]

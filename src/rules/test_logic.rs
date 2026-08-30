@@ -6,7 +6,7 @@
 //! > and outputs directly rather than computing them. Otherwise it's easy for
 //! > tests to develop their own bugs.
 //!
-//! This implements the control-flow half of the signal in DESIGN.md §5.1: a
+//! This implements the control-flow half of the signal in notes/DESIGN.md §5.1: a
 //! `_loop` or `_branch` under a test `_callable`. The other half — an
 //! arithmetic or concatenation operator in an assertion argument — needs a
 //! notion of "operator" that the treebank vocabulary does not currently

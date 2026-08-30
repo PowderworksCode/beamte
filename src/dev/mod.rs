@@ -10,7 +10,7 @@
 //! out of the manifests the crate ships, so a rule is exercised against
 //! treebank's own answers rather than against a table written here.
 //!
-//! That the two paths agree is still unproven; DESIGN.md §10.1 wants a fixture
+//! That the two paths agree is still unproven; notes/DESIGN.md §10.1 wants a fixture
 //! comparing a native tree against a pack tree, and this makes that comparison
 //! possible rather than settling it.
 

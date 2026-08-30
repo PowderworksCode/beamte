@@ -24,7 +24,7 @@
 //! `_loop` and `_loop` from `_statement` -- so membership is the transitive
 //! closure over the subtype lists, not one level of it.
 //!
-//! Which terms are threaded is per-grammar (DESIGN.md §3.1.1). Python carries
+//! Which terms are threaded is per-grammar (notes/DESIGN.md §3.1.1). Python carries
 //! no `_control_flow` supertype at all, so asking a node for it there yields
 //! nothing. That is a fact about the grammar, and reading it from the manifest
 //! is how a rule finds out rather than assuming.

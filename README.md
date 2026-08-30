@@ -12,7 +12,7 @@ and owns no configuration — those are the host's, and
 [straitjacket](https://github.com/PowderworksCode/straitjacket) is the first
 host.
 
-**[`DESIGN.md`](DESIGN.md) is the authoritative document** — the rule
+**[`notes/DESIGN.md`](notes/DESIGN.md) is the authoritative document** — the rule
 catalogue and its provenance, the fidelity/resilience/precision spine, the
 boundary between this library and its host, the substrate it assumes, and the
 open questions. Start there.
