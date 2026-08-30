@@ -19,10 +19,17 @@ checksum = "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
 
 [[package]]
 name = "beamte"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
- "tree-sitter",
  "treebank",
+]
+
+[[package]]
+name = "beamte-dev"
+version = "0.1.0"
+dependencies = [
+ "beamte",
+ "tree-sitter",
  "treebank-python",
 ]
 
@@ -212,9 +219,9 @@ checksum = "009994f150cc0cd50ff54917d5bc8bffe8cad10ca10d81c34da2ec421ae61782"
 
 [[package]]
 name = "treebank"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "077fc2b86fec8e71139eea0de5ab8c75249dc9fd9cb62e71db4fbc2fd959773e"
+checksum = "ca87d2f2b20842eff91d306b1ff090fa30504edd750a6df3b21d8d7ec52dad6d"
 dependencies = [
  "anyhow",
  "serde",
