@@ -121,14 +121,15 @@ fn explain(parsed: &Parsed) {
 
 fn rules() {
     for rule in beamte::catalogue() {
-        println!(
-            "{}  [{}, over {}]",
-            rule.id,
-            rule.property.as_str(),
-            rule.scope.as_str()
-        );
+        let property = rule.property.map_or("—", |property| property.as_str());
+        println!("{}  [{}, over {}]", rule.id, property, rule.scope.as_str());
         println!("  {}", rule.summary);
-        println!("  {} ({})", rule.citation.title, rule.citation.date);
-        println!("  {}", rule.citation.url);
+        match rule.citation {
+            Some(citation) => {
+                println!("  {} ({})", citation.title, citation.date);
+                println!("  {}", citation.url);
+            }
+            None => println!("  states a structural fact; no post to cite"),
+        }
     }
 }

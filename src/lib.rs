@@ -76,6 +76,9 @@ pub fn inspect_with<'t, N: Node<'t>>(
     if selection.wants(&rules::env_read::RULE) {
         rules::env_read::check(unit, model, &mut findings);
     }
+    if selection.wants(&rules::const_declaration::RULE) {
+        rules::const_declaration::check(unit, model, &mut findings);
+    }
     findings
 }
 

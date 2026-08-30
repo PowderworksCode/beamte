@@ -8,6 +8,35 @@ The `beamte-dev` crate is not published and is not versioned here.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-30
+
+### Added
+
+- `const-declaration`, which reports a `SCREAMING_SNAKE_CASE` name where it is
+  *introduced*. A constant is a decision the program has made, and scattered
+  through a tree those decisions cannot be read as a set. Where one may be
+  declared is policy about a repository, so the host names those files, as it
+  names the environment's edge for `env-read`.
+
+  This is the rule that needed a tree. Its whole content is the difference
+  between declaring a name and using one, and text cannot tell those apart
+  without a per-language table of declaration keywords -- a parser written
+  badly. The vocabulary answers it in one form for every grammar: a `_binding`
+  that is neither a `_directive` (an import binds a name without declaring it)
+  nor a `_parameter`, outside any `_callable` (a local cannot be moved to
+  another file). A use carries no binding role at all.
+
+### Changed
+
+- **Breaking**: `Rule::property` and `Rule::citation` are `Option`, and
+  `Finding::property` with them. A rule either restates a published argument
+  and carries it, or states a structural fact and cites nothing.
+  `const-declaration` is the first of the second kind, and inventing an
+  authority for it would cost exactly the property DESIGN.md §1 exists to
+  protect. `Property` stays a closed set of three: all three are properties of
+  a *test*, and a fourth for code arrangement would make the taxonomy mean
+  less. notes/DESIGN.md §5.6 records both decisions.
+
 ## [0.2.0] - 2026-08-30
 
 ### Added

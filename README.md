@@ -7,10 +7,12 @@ cannot fail when the code breaks, tests that fail when nothing broke, tests
 whose failure tells you nothing. Every rule restates a post from the Google
 Testing Blog, and every finding cites the post it was issued under.
 
-Every rule declares its scope. Most read test bodies; `env-read` reads any
-source file, flagging code that reads the process environment where nothing
+Every rule declares its scope. Most read test bodies; two read any source
+file. `env-read` flags code reading the process environment where nothing
 declares it — the input no signature admits to, and the reason a small test
-above it can never be hermetic.
+above it can never be hermetic. `const-declaration` reports a
+`SCREAMING_SNAKE_CASE` name where it is introduced rather than where it is
+used, which is the distinction that needs a tree rather than a regex.
 
 It is a library. It parses nothing, reads no files, writes no output format
 and owns no configuration — those are the host's, and
