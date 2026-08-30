@@ -1,14 +1,12 @@
-#![cfg(feature = "dev")]
-
 //! `test-logic` over real parsed Python.
 //!
 //! Fixtures are written DAMP — literal, self-contained, and with no loops or
 //! conditionals of their own. A fixture corpus for a rule that bans logic in
 //! tests must not contain logic in tests.
 
-use beamte::dev::Parsed;
 use beamte::node::Unit;
 use beamte::{Finding, TestModel, inspect};
+use beamte_dev::Parsed;
 
 fn findings(source: &str) -> Vec<Finding> {
     let parsed = Parsed::python(source).expect("the fixture parses");

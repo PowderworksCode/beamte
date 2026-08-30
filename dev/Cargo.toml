@@ -1,0 +1,26 @@
+[package]
+name = "beamte-dev"
+version = "0.1.0"
+edition = "2024"
+description = "Development harness for beamte: parses natively so rules can be run against real files."
+repository = "https://github.com/PowderworksCode/beamte"
+license = "MIT"
+# Never published. It exists so a rule can be developed against a real file,
+# and it links a grammar crate that is itself unpublished on purpose --
+# treebank's grammars ship as wasm packs, not as crates. Keeping it out of the
+# published library is what lets `beamte` reach crates.io at all.
+publish = false
+
+[dependencies]
+beamte = { path = "..", version = "0.1.0", features = ["manifests"] }
+tree-sitter = "0.26"
+# A git dependency rather than a path one: this resolves anywhere with repo
+# access, where a path dependency would need a full powderworks/ checkout.
+treebank-python = { git = "https://github.com/PowderworksCode/treebank" }
+
+[[bin]]
+name = "beamte"
+path = "src/bin/beamte.rs"
+
+[lints]
+workspace = true

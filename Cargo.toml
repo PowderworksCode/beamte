@@ -1,14 +1,30 @@
+[workspace]
+members = ["dev"]
+
+# Shared so the library and the harness are held to the same standard; a rule
+# developed under looser lints than it ships under is a rule found twice.
+[workspace.lints.rust]
+unused_must_use = "deny"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+
 [package]
 name = "beamte"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2024"
 description = "Test-quality rules over treebank trees. Trees in, findings out."
 repository = "https://github.com/PowderworksCode/beamte"
-publish = false
+documentation = "https://docs.rs/beamte"
+readme = "README.md"
+license = "MIT"
+keywords = ["testing", "lint", "static-analysis", "tree-sitter", "test-quality"]
+categories = ["development-tools::testing", "development-tools"]
 
-# The published library has no dependencies at all. `dev` adds a parser and a
-# binary so rules can be developed against real files; DESIGN.md §8 explains
-# why that costs consumers nothing.
+# The published library has one dependency and can be built with none.
+# Developing a rule means running it against a real file, which needs a parser
+# and a grammar; both live in the `beamte-dev` crate beside this one, which is
+# never published. DESIGN.md 8 explains why that costs consumers nothing.
 [features]
 # `manifests` reads a grammar's node-types.json and roles.json into a role
 # table. On by default because every host needs it and doing it per host is
@@ -19,28 +35,12 @@ publish = false
 # about what derives from what.
 default = ["manifests"]
 manifests = ["dep:treebank"]
-dev = ["manifests", "dep:tree-sitter", "dep:treebank-python"]
 
 [dependencies]
-tree-sitter = { version = "0.26", optional = true }
 # Vocabulary only. `pack` and `fetch` are treebank's defaults and would drag
-# in wasmtime and an HTTP stack -- 238 crates against 14 -- into a library
-# whose whole premise is that it links neither.
-treebank = { version = "0.2", default-features = false, optional = true }
-# Not on crates.io yet, so a git dependency rather than a path one: this
-# resolves anywhere with repo access, where a path dependency would need a
-# full powderworks/ checkout. It is optional and off by default, so it never
-# reaches a consumer. It does block `cargo publish` until treebank is
-# released, which is why the crate is `publish = false` for now.
-treebank-python = { git = "https://github.com/PowderworksCode/treebank", optional = true }
+# in a wasm engine and an HTTP stack -- 238 crates against 14 -- into a
+# library whose whole premise is that it links neither.
+treebank = { version = "0.3", default-features = false, optional = true }
 
-[[bin]]
-name = "beamte"
-path = "src/bin/beamte.rs"
-required-features = ["dev"]
-
-[lints.rust]
-unused_must_use = "deny"
-
-[lints.clippy]
-unwrap_used = "deny"
+[lints]
+workspace = true

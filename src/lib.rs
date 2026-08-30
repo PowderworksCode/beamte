@@ -15,9 +15,6 @@ pub mod node;
 pub mod role;
 pub mod rules;
 
-#[cfg(feature = "dev")]
-pub mod dev;
-
 pub use finding::{Citation, EvidenceStep, Finding, Property, Rule, RuleId};
 #[cfg(feature = "manifests")]
 pub use manifest::RoleTable;

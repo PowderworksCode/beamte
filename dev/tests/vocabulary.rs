@@ -1,5 +1,3 @@
-#![cfg(feature = "dev")]
-
 //! Beamte's [`Role`] enum against treebank's own term lists.
 //!
 //! DESIGN.md §2 says a rule is portable because the vocabulary is enforced in
@@ -7,8 +5,8 @@
 //! agree, and the failure mode is silent: an unknown term simply never matches
 //! a rule, so every test stays green while a rule quietly stops firing.
 
-use beamte::dev::{RoleTable, python_roles};
 use beamte::role::Role;
+use beamte_dev::{RoleTable, python_roles};
 
 #[test]
 fn every_term_treebank_declares_is_a_role_beamte_knows() {

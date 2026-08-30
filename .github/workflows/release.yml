@@ -1,0 +1,102 @@
+name: release
+
+# A tag is the whole trigger, and the only thing a tag releases is the
+# `beamte` crate. `beamte-dev` is never published: it links treebank's native
+# grammar crates, which are unpublished on purpose.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to publish
+        required: true
+
+permissions:
+  contents: read
+
+# Never run two releases at once, and never cancel one in flight: a cancelled
+# `cargo publish` can leave a version uploaded that can never be reused.
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+
+jobs:
+  # Everything checkable, checked before the one step that cannot be undone.
+  # The whole workspace, not just the published crate: the harness is what
+  # exercises the rules against real parsed source, and a release whose rules
+  # do not fire is worse than no release.
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+      # No build cache here, deliberately: a cache is writable from other
+      # workflows, and these binaries are the release. Cold builds are the
+      # price of artifacts nothing else could have written to (zizmor's
+      # cache-poisoning audit).
+      - name: the tag matches the crate version
+        run: |
+          crate=$(sed -n 's/^version = "\(.*\)"$/\1/p' Cargo.toml | head -n 1)
+          if [ "$TAG" != "v${crate}" ]; then
+            echo "::error::tag ${TAG} does not match Cargo.toml version ${crate}"
+            exit 1
+          fi
+          echo "tag ${TAG} matches ${crate}"
+
+      - run: cargo test --workspace --locked
+      - run: cargo clippy --workspace --locked --all-targets -- -D warnings
+
+      # The publish path itself, uploading nothing.
+      - run: ./tools/publish-crate.sh --dry-run
+
+  # crates.io is the one place a version can never be replaced, so it goes
+  # last and everything checkable is checked first.
+  crate:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # One place to require a human approval before an irreversible publish:
+    # Settings > Environments > crates-io > Required reviewers.
+    environment: crates-io
+    permissions:
+      id-token: write
+    env:
+      # `secrets` cannot be read from an `if`, so whether one exists is
+      # answered here, where it can be.
+      HAS_STORED_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+      # No build cache here, deliberately: a cache is writable from other
+      # workflows, and these binaries are the release. Cold builds are the
+      # price of artifacts nothing else could have written to (zizmor's
+      # cache-poisoning audit).
+
+      # Trusted publishing is the normal path and needs no secret. The stored
+      # token exists only to bootstrap: a crate's first version cannot be
+      # published this way, because crates.io will not attach a trusted
+      # publisher to a crate that does not exist yet. Delete the secret once
+      # the trusted publisher is configured and this step takes over.
+      - uses: rust-lang/crates-io-auth-action@c6f97d42243bad5fab37ca0427f495c86d5b1a18 # v1
+        id: auth
+        if: env.HAS_STORED_TOKEN == 'false'
+
+      - name: publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token || secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          if [ "${HAS_STORED_TOKEN}" = "true" ]; then
+            echo "publishing with the stored bootstrap token; delete it once trusted publishing is configured"
+          else
+            echo "publishing with a short-lived trusted-publishing token"
+          fi
+          ./tools/publish-crate.sh --execute

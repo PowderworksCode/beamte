@@ -6,9 +6,9 @@
 
 use std::process::ExitCode;
 
-use beamte::dev::Parsed;
 use beamte::node::{Node, Unit, Visit, walk};
 use beamte::{TestModel, inspect};
+use beamte_dev::Parsed;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
