@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
-# Publish the `treebank` crate to crates.io.
+# Publish the `beamte` crate to crates.io.
 #
 # Publishing is irreversible: a version can be yanked but never deleted, and a
 # name/version pair can never be reused. The shape of this script follows from
 # that.
 #
 #   - Dry run is the default. Uploading takes --execute.
-#   - A version the registry already has is skipped rather than attempted, so
-#     re-running a release for an existing tag is a no-op instead of a failure.
+#   - An upload of a version the registry already has is skipped rather than
+#     attempted, so re-running a release for an existing tag is a no-op instead
+#     of a failure. A dry run is never skipped: it packages and compiles every
+#     time, because a publish check that returns success without building
+#     anything is exactly the green light nobody should trust -- and on every
+#     commit that does not bump the version, that would be every run.
 #   - Existing versions come from the sparse index rather than the web API,
 #     because the index is what cargo itself resolves against, and because
 #     --index lets the whole path be rehearsed against a local directory.
-#   - The version is whatever Cargo.toml says. Nothing here
-#     computes or bumps it; the release workflow checks the tag against it.
+#   - The version is whatever Cargo.toml says. Nothing here computes or bumps
+#     it; the release workflow checks the tag against it.
 #
 # Only `beamte` is published. `beamte-dev` carries `publish = false`: it links
 # treebank's native grammar crates, which are themselves unpublished on purpose.
@@ -53,7 +57,7 @@ while [ $# -gt 0 ]; do
     --registry)    REGISTRY=${2:?--registry needs a name}; shift ;;
     --index)       INDEX_BASE=${2:?--index needs a url or directory}; shift ;;
     --allow-dirty) ALLOW_DIRTY=1 ;;
-    -h|--help)     sed -n '2,36p' "${BASH_SOURCE[0]}"; exit 0 ;;
+    -h|--help)     awk 'NR>1 && /^#/ {print; next} NR>1 {exit}' "${BASH_SOURCE[0]}"; exit 0 ;;
     -*)            echo "publish-crate: unknown flag $1" >&2; exit 2 ;;
     *)             echo "publish-crate: unexpected argument $1" >&2; exit 2 ;;
   esac
