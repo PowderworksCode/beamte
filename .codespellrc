@@ -1,0 +1,4 @@
+# ignore-words-list: "testng" is TestNG, the Java framework, named beside JUnit
+# in the java test model. Codespell reads it as a misspelling of "testing".
+[codespell]
+ignore-words-list = testng
