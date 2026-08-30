@@ -31,15 +31,15 @@ cargo build --locked
 cargo test --locked
 cargo clippy --locked --all-targets -- -D warnings
 
-# treebank-python is a git dependency, so this is the step that needs network
-# and repository access the first time.
+# treebank-python is a git dependency of beamte-dev, so this is the step that
+# needs network and repository access the first time.
 echo "== dev harness"
-cargo fmt --check
-cargo test --locked --features dev
-cargo clippy --locked --all-targets --features dev -- -D warnings
+cargo fmt --all --check
+cargo test --workspace --locked
+cargo clippy --workspace --locked --all-targets -- -D warnings
 
 echo
 echo "ready. the harness, against a real file:"
-echo "  cargo run --features dev -- check   some_test.py   # findings"
-echo "  cargo run --features dev -- explain some_test.py   # the tree, with roles"
-echo "  cargo run --features dev -- rules                  # the catalogue"
+echo "  cargo run -p beamte-dev -- check   some_test.py   # findings"
+echo "  cargo run -p beamte-dev -- explain some_test.py   # the tree, with roles"
+echo "  cargo run -p beamte-dev -- rules                  # the catalogue"

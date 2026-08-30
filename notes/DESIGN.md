@@ -523,12 +523,19 @@ a tree for is a reported condition, not an empty finding list.
 Rules cannot be written blind. Developing `multi-scenario` means running it
 against a real file and seeing what the analysis saw, repeatedly, in a loop
 measured in seconds. So beamte carries a small binary and real grammars for
-exactly that, behind an optional `dev` feature, off by default, with the
-binary marked `required-features = ["dev"]`.
+exactly that, in a `beamte-dev` crate beside the library, marked
+`publish = false`.
+
+It began as an optional `dev` feature on the library itself. That could not
+survive publishing: the harness links treebank's native Python grammar, which
+is `publish = false` on purpose -- treebank ships grammars as wasm packs, not
+as crates -- and an optional dependency still has to name a version cargo can
+resolve. A separate crate is what makes the comment atop the harness ("not
+part of the published library") structurally true.
 
 This costs consumers nothing, and that is a fact about Cargo rather than a
-hope: dev-dependencies do not propagate to dependents, and an unselected
-optional feature is not compiled. Straitjacket's dependency tree, binary size
+hope: a crate a library does not depend on is not compiled, fetched, or
+resolved. Straitjacket's dependency tree, binary size
 and musl cross-build are untouched by anything in this section — which is
 precisely why the same grammars that could not live *in* straitjacket are
 safe here. What broke the eyebrow rule was a real dependency; this is not
@@ -568,7 +575,7 @@ tests.
 
 | stage | work |
 |---|---|
-| 01 | **The node interface and dev harness.** The narrow trait, its native tree-sitter implementation, `check`, `explain`, the fixture layout — all behind `--features dev`. Design the trait against the `tb_*` ABI's shape so straitjacket's implementation is thin, but do not import it. |
+| 01 | **The node interface and dev harness.** The narrow trait, its native tree-sitter implementation, `check`, `explain`, the fixture layout — all in the `beamte-dev` crate. Design the trait against the `tb_*` ABI's shape so straitjacket's implementation is thin, but do not import it. |
 | 02 | **The test model.** One table: how each framework marks a test, assertion, mock and fixture — pytest `test_*`, JUnit `@Test`, Rust `#[test]`, Go `TestXxx`, jest `it()`. The only framework-specific layer in the design, and it doubles as the prefilter. Keeping it a data table rather than code is what stops this fragmenting the way the existing plugins did. |
 | 03 | **The four free rules.** `test-logic`, `no-assertion`, `multi-scenario`, `boolean-assertion`. Pure shape, no resolution, near-zero false positives, written against the vocabulary rather than any one grammar. Already past what anything currently ships. |
 | 04 | **Corpus calibration.** Run stage 03 across ~1,000 real packages via `treebank-corpus`, which already ranks and fetches an ecosystem's top packages with reproducible provenance. Every *n* in §5 gets a measured percentile; every rule gets a false-positive rate; rules firing on a fifth of all real tests get cut or demoted before anyone else sees them. |

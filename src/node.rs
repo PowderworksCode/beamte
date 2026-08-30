@@ -1,7 +1,7 @@
 //! The boundary. Beamte walks trees through this trait and owns no parser.
 //!
 //! Two implementations are expected: the host's, over treebank's `tb_*` wasm
-//! pack ABI, and the one behind `--features dev` here, over native
+//! pack ABI, and the one in the `beamte-dev` crate, over native
 //! tree-sitter. Having two is what keeps the trait an abstraction rather than
 //! a mirror of whichever backend was written first.
 

@@ -27,7 +27,7 @@ which is the claim the crate makes about itself.
 scripts/dev.sh
 
 cargo test                 # the library, with no parser and no dependencies
-cargo test --features dev  # the rules, against real parsed source
+cargo test --workspace     # the rules, against real parsed source
 ```
 
 `dev` adds a parser and a `beamte` binary so rules can be developed against
@@ -42,9 +42,9 @@ cannot be published until treebank is, which is why the crate is
 `publish = false` for now.
 
 ```sh
-cargo run --features dev -- check   some_test.py   # findings
-cargo run --features dev -- explain some_test.py   # the tree, with roles
-cargo run --features dev -- rules                  # the catalogue
+cargo run -p beamte-dev -- check   some_test.py   # findings
+cargo run -p beamte-dev -- explain some_test.py   # the tree, with roles
+cargo run -p beamte-dev -- rules                  # the catalogue
 ```
 
 `explain` is the one that matters: when a rule misfires, the finding tells you

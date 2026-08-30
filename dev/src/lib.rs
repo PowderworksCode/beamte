@@ -16,10 +16,10 @@
 
 use std::sync::OnceLock;
 
-use crate::node::{Node, Span};
-use crate::role::RoleSet;
+use beamte::node::{Node, Span};
+use beamte::role::RoleSet;
 
-pub use crate::manifest::RoleTable;
+pub use beamte::manifest::RoleTable;
 
 /// The Python role table, built once from the grammar's own manifests.
 pub fn python_roles() -> &'static RoleTable {

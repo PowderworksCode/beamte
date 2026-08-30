@@ -23,25 +23,32 @@ Today the catalogue has one rule (`src/rules/test_logic.rs`) and one grammar
 wired up for development (Python). The scaffolding around them is the point;
 adding a rule is meant to be the small part.
 
-## The two builds, and why `cargo test` alone proves less than it looks
+## The two builds, and why `cargo test -p beamte` proves less than it looks
 
 ```sh
-cargo test                 # the library, with no parser and no dependencies
-cargo test --features dev  # the rules, against real parsed source
+cargo test -p beamte     # the library alone: no parser, one dependency
+cargo test --workspace   # the rules, against real parsed source
 ```
 
-**Both integration test files begin with `#![cfg(feature = "dev")]`.** A plain
-`cargo test` compiles them to nothing, so a green run without `--features dev`
-has not exercised a single rule. This is the first thing to get wrong here.
+**`cargo test -p beamte` runs no rule against any source.** The rules are
+exercised from `beamte-dev`, the harness crate beside the library, so a green
+run of the library alone has not parsed a thing. Use `--workspace` and check
+the count: it is 30, and 13 of those are the library's own.
 
-`dev` adds native tree-sitter plus treebank's Python grammar and the `beamte`
-binary (`[[bin]]` is `required-features = ["dev"]`, so `cargo run` without it
-fails to find a target). For iterating on a rule:
+This used to be sharper and worse. The harness was a `dev` feature on the
+library, both integration tests opened with `#![cfg(feature = "dev")]`, and a
+plain `cargo test` compiled them to nothing while reporting `ok` -- a green run
+that had tested no rule at all. Splitting the crate removed the gate rather
+than documenting it, which is why the count is the thing to check now.
+
+`beamte-dev` carries native tree-sitter, treebank's Python grammar and the
+`beamte` binary. It is never published; the library is. For iterating on a
+rule:
 
 ```sh
-cargo run --features dev -- check   some_test.py   # findings
-cargo run --features dev -- explain some_test.py   # the tree, with roles
-cargo run --features dev -- rules                  # the catalogue
+cargo run -p beamte-dev -- check   some_test.py   # findings
+cargo run -p beamte-dev -- explain some_test.py   # the tree, with roles
+cargo run -p beamte-dev -- rules                  # the catalogue
 ```
 
 `explain` is the one that matters: when a rule misfires the finding tells you

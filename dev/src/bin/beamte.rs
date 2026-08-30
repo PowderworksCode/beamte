@@ -1,4 +1,4 @@
-//! The development binary. `required-features = ["dev"]`, so it is never
+//! The development binary. It lives in `beamte-dev`, so it is never
 //! built for a consumer.
 //!
 //! `check` is the inner loop. `explain` is the one that matters: when a rule
@@ -6,9 +6,9 @@
 
 use std::process::ExitCode;
 
-use beamte::dev::Parsed;
 use beamte::node::{Node, Unit, Visit, walk};
 use beamte::{TestModel, inspect};
+use beamte_dev::Parsed;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
