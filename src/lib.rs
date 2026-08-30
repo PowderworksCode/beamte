@@ -1,7 +1,9 @@
 //! Test-quality rules over treebank trees. Trees in, findings out.
 //!
-//! Beamte takes a parsed test file and returns findings about it. Every rule
+//! Beamte takes a parsed file and returns findings about it. Every rule
 //! restates a post from the Google Testing Blog and carries its citation.
+//! Most rules read test bodies; a rule whose [`Scope`] is `File` reads any
+//! source file, and `env-read` is the first of those.
 //!
 //! It parses nothing, reads no files, writes no output format and owns no
 //! configuration: those belong to the host running the scan. `notes/DESIGN.md` is
@@ -15,7 +17,7 @@ pub mod node;
 pub mod role;
 pub mod rules;
 
-pub use finding::{Citation, EvidenceStep, Finding, Property, Rule, RuleId};
+pub use finding::{Citation, EvidenceStep, Finding, Property, Rule, RuleId, Scope};
 #[cfg(feature = "manifests")]
 pub use manifest::RoleTable;
 pub use model::{LANGUAGES, TestModel};
@@ -70,6 +72,9 @@ pub fn inspect_with<'t, N: Node<'t>>(
     let mut findings = Vec::new();
     if selection.wants(&rules::test_logic::RULE) {
         rules::test_logic::check(unit, model, &mut findings);
+    }
+    if selection.wants(&rules::env_read::RULE) {
+        rules::env_read::check(unit, model, &mut findings);
     }
     findings
 }

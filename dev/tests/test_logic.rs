@@ -169,10 +169,24 @@ fn every_rule_cites_the_post_it_restates() {
     assert!(!catalogue.is_empty());
     assert_eq!(catalogue[0].id.as_str(), "test-logic");
     assert_eq!(catalogue[0].citation.date, "2014-07-31");
-    assert!(
-        catalogue[0]
-            .citation
-            .url
-            .starts_with("https://testing.googleblog.com/")
-    );
+    for rule in catalogue {
+        assert!(
+            rule.citation
+                .url
+                .starts_with("https://testing.googleblog.com/"),
+            "{} cites {}, which is not the blog",
+            rule.id,
+            rule.citation.url
+        );
+    }
+}
+
+#[test]
+fn a_test_rule_reads_tests_and_the_env_rule_reads_files() {
+    use beamte::Scope;
+
+    let scope_of = |id: &str| beamte::rule(id).expect("the rule exists").scope;
+
+    assert_eq!(scope_of("test-logic"), Scope::Tests);
+    assert_eq!(scope_of("env-read"), Scope::File);
 }

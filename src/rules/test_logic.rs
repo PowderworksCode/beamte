@@ -15,7 +15,7 @@
 //! Only the outermost occurrence is reported. A doubly nested loop is one
 //! problem, not two, and the fix for the outer one removes both.
 
-use crate::finding::{Citation, Finding, Property, Rule, RuleId};
+use crate::finding::{Citation, Finding, Property, Rule, RuleId, Scope};
 use crate::model::TestModel;
 use crate::node::{Node, Unit, Visit, walk};
 use crate::role::Role;
@@ -23,6 +23,7 @@ use crate::role::Role;
 pub const RULE: Rule = Rule {
     id: RuleId::new("test-logic"),
     property: Property::Precision,
+    scope: Scope::Tests,
     summary: "a test computes its own expectations instead of stating them",
     instruction: "Do not put loops or conditionals in a test body. A test is a \
                   concrete input/output pair: state the values directly rather \

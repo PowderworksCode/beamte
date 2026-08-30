@@ -7,6 +7,11 @@ cannot fail when the code breaks, tests that fail when nothing broke, tests
 whose failure tells you nothing. Every rule restates a post from the Google
 Testing Blog, and every finding cites the post it was issued under.
 
+Every rule declares its scope. Most read test bodies; `env-read` reads any
+source file, flagging code that reads the process environment where nothing
+declares it — the input no signature admits to, and the reason a small test
+above it can never be hermetic.
+
 It is a library. It parses nothing, reads no files, writes no output format
 and owns no configuration — those are the host's, and
 [straitjacket](https://github.com/PowderworksCode/straitjacket) is the first

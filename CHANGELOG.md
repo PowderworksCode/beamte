@@ -8,6 +8,29 @@ The `beamte-dev` crate is not published and is not versioned here.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-30
+
+### Added
+
+- `env-read`, the first rule with something to say about every file rather
+  than only test files: code that reads the process environment where nothing
+  declares it — `std::env::var`, `os.environ`, `process.env`, `ENV[…]`,
+  `System.getenv`, `getenv` — is an input no signature admits to, and no
+  small test of that code can stay hermetic (*Test Sizes*, 2010-12-13).
+  Where the environment *may* be read is the host's configuration, exactly as
+  severity is. Bash is deliberately not covered: `$VAR` is the language's own
+  variable model, and `env_read::covers` lets a host report the gap rather
+  than a clean file.
+- `Scope` on every `Rule`, saying what the rule reads: `Tests` for the
+  catalogue as it was, `File` for `env-read`. A host that runs "all rules"
+  over test files alone needs to know which kind it is holding, and this is
+  how it knows.
+
+### Changed
+
+- **Breaking**: `Rule` gained the public `scope` field, so a consumer
+  matching the struct exhaustively has a new field to name.
+
 ## [0.1.0] - 2026-08-30
 
 First release. The library was already in use through a git dependency; this

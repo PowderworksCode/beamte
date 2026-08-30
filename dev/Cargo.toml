@@ -12,7 +12,7 @@ license = "MIT"
 publish = false
 
 [dependencies]
-beamte = { path = "..", version = "0.1.0", features = ["manifests"] }
+beamte = { path = "..", version = "0.2.0", features = ["manifests"] }
 tree-sitter = "0.26"
 # A git dependency rather than a path one: this resolves anywhere with repo
 # access, where a path dependency would need a full powderworks/ checkout.

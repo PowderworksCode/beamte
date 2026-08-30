@@ -29,6 +29,32 @@ impl Property {
     }
 }
 
+/// What a rule reads: the tests in a file, or the file whole.
+///
+/// The catalogue began as test-quality rules only, and most of it still is.
+/// `env-read` was the first rule with something to say about every file, and
+/// a host has to know which kind it is holding: a `Tests` rule belongs on
+/// files that look like tests, a `File` rule on everything the host can
+/// parse, and a host that runs "all rules" over test files alone would be
+/// silently skipping the second kind. notes/DESIGN.md §5.5 records the
+/// decision.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Scope {
+    /// The rule reads test bodies; a file with no tests yields nothing.
+    Tests,
+    /// The rule reads any source file, test or not.
+    File,
+}
+
+impl Scope {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Scope::Tests => "tests",
+            Scope::File => "file",
+        }
+    }
+}
+
 /// A rule's stable identifier.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct RuleId(&'static str);
@@ -64,6 +90,7 @@ pub struct Citation {
 pub struct Rule {
     pub id: RuleId,
     pub property: Property,
+    pub scope: Scope,
     pub summary: &'static str,
     pub instruction: &'static str,
     pub citation: Citation,

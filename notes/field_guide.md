@@ -19,9 +19,15 @@ is a bug, and which one is a decision to be recorded there. Several source files
 cite it by section number, so renumbering it means grepping for
 `notes/DESIGN.md`.
 
-Today the catalogue has one rule (`src/rules/test_logic.rs`) and one grammar
-wired up for development (Python). The scaffolding around them is the point;
-adding a rule is meant to be the small part.
+Today the catalogue has two rules — `test-logic` (`src/rules/test_logic.rs`)
+and `env-read` (`src/rules/env_read.rs`) — and one grammar wired up for
+development (Python). The scaffolding around them is the point; adding a rule
+is meant to be the small part.
+
+The two rules differ in *scope*, which every `Rule` now declares: `test-logic`
+reads test bodies (`Scope::Tests`), `env-read` reads any source file
+(`Scope::File`). A host deciding which files to hand a rule reads the scope
+rather than guessing; `notes/DESIGN.md` §5.5 records why the catalogue widened.
 
 ## The two builds, and why `cargo test -p beamte` proves less than it looks
 
@@ -33,7 +39,7 @@ cargo test --workspace   # the rules, against real parsed source
 **`cargo test -p beamte` runs no rule against any source.** The rules are
 exercised from `beamte-dev`, the harness crate beside the library, so a green
 run of the library alone has not parsed a thing. Use `--workspace` and check
-the count: it is 30, and 13 of those are the library's own.
+the count: it is 45, and 18 of those are the library's own.
 
 This used to be sharper and worse. The harness was a `dev` feature on the
 library, both integration tests opened with `#![cfg(feature = "dev")]`, and a
