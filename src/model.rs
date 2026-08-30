@@ -427,47 +427,101 @@ fn last_segment(text: &str) -> &str {
 mod tests {
     use super::{LANGUAGES, TestModel, attribute_name, last_segment};
 
-    #[test]
-    fn every_language_treebank_serves_has_a_model() {
-        for language in LANGUAGES {
-            let model = TestModel::for_language(language)
-                .unwrap_or_else(|| panic!("no test model for {language}"));
-            assert_eq!(&model.language, language);
-        }
+    fn model_is_sound(language: &str) {
+        let model = TestModel::for_language(language)
+            .unwrap_or_else(|| panic!("no test model for {language}"));
+        assert_eq!(&model.language, language);
         assert!(
-            TestModel::for_language("cobol").is_none(),
-            "a language with no pack should not get a guessed model"
+            !model.test_name_prefixes.is_empty()
+                || !model.test_attributes.is_empty()
+                || !model.test_invocations.is_empty()
+                || !model.test_kinds.is_empty(),
+            "{language} has no way to recognise a test at all"
+        );
+        assert!(
+            !model.test_invocations.iter().any(|name| name == "describe"),
+            "{language} treats `describe` as a test, so every loop that \
+             generates cases is a finding"
         );
     }
 
     #[test]
-    fn every_model_can_recognise_a_test_some_way() {
-        for language in LANGUAGES {
-            let Some(model) = TestModel::for_language(language) else {
-                continue;
-            };
-            assert!(
-                !model.test_name_prefixes.is_empty()
-                    || !model.test_attributes.is_empty()
-                    || !model.test_invocations.is_empty()
-                    || !model.test_kinds.is_empty(),
-                "{language} has no way to recognise a test at all"
-            );
-        }
+    fn bash_has_a_sound_model() {
+        model_is_sound("bash");
     }
 
     #[test]
-    fn a_suite_is_not_a_test() {
-        for language in LANGUAGES {
-            let Some(model) = TestModel::for_language(language) else {
-                continue;
-            };
-            assert!(
-                !model.test_invocations.iter().any(|name| name == "describe"),
-                "{language} treats `describe` as a test, so every loop that \
-                 generates cases is a finding"
-            );
-        }
+    fn c_has_a_sound_model() {
+        model_is_sound("c");
+    }
+
+    #[test]
+    fn cpp_has_a_sound_model() {
+        model_is_sound("cpp");
+    }
+
+    #[test]
+    fn java_has_a_sound_model() {
+        model_is_sound("java");
+    }
+
+    #[test]
+    fn javascript_has_a_sound_model() {
+        model_is_sound("javascript");
+    }
+
+    #[test]
+    fn python_has_a_sound_model() {
+        model_is_sound("python");
+    }
+
+    #[test]
+    fn ruby_has_a_sound_model() {
+        model_is_sound("ruby");
+    }
+
+    #[test]
+    fn rust_has_a_sound_model() {
+        model_is_sound("rust");
+    }
+
+    #[test]
+    fn typescript_has_a_sound_model() {
+        model_is_sound("typescript");
+    }
+
+    #[test]
+    fn zig_has_a_sound_model() {
+        model_is_sound("zig");
+    }
+
+    #[test]
+    fn the_languages_named_above_are_every_language_treebank_serves() {
+        assert_eq!(
+            LANGUAGES,
+            [
+                "bash",
+                "c",
+                "cpp",
+                "java",
+                "javascript",
+                "python",
+                "ruby",
+                "rust",
+                "typescript",
+                "zig"
+            ],
+            "a language moved in or out of LANGUAGES; give it a test above, or \
+             take its test away"
+        );
+    }
+
+    #[test]
+    fn a_language_treebank_has_no_pack_for_gets_no_model() {
+        assert!(
+            TestModel::for_language("cobol").is_none(),
+            "a language with no pack should not get a guessed model"
+        );
     }
 
     #[test]
