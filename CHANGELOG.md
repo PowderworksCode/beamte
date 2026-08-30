@@ -32,8 +32,8 @@ is the point at which a consumer can name a version instead.
 ### Changed
 
 - The development harness moved out of the library into a `beamte-dev` crate.
-  It was an optional `dev` feature, which could not survive publishing: it
-  links treebank's native Python grammar, which is `publish = false` on
-  purpose, and an optional dependency still has to name a version cargo can
-  resolve. Building it is now `cargo run -p beamte-dev` rather than
+  As an optional `dev` feature it could not survive publishing: it links
+  treebank's native Python grammar, which carries `publish = false` on purpose,
+  and an optional dependency still has to name a version cargo can resolve.
+  Build it with `cargo run -p beamte-dev` rather than
   `cargo run --features dev`.
