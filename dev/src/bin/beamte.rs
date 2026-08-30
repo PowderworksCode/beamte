@@ -121,7 +121,12 @@ fn explain(parsed: &Parsed) {
 
 fn rules() {
     for rule in beamte::catalogue() {
-        println!("{}  [{}]", rule.id, rule.property.as_str());
+        println!(
+            "{}  [{}, over {}]",
+            rule.id,
+            rule.property.as_str(),
+            rule.scope.as_str()
+        );
         println!("  {}", rule.summary);
         println!("  {} ({})", rule.citation.title, rule.citation.date);
         println!("  {}", rule.citation.url);

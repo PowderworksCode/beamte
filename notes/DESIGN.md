@@ -384,6 +384,51 @@ code flow, so the shape needed here is the shape that exists.
 This rule is the reason to build the library. The other seventeen are the
 reason anyone adopts it.
 
+### 5.5 `env-read`, and the first widening of scope
+
+#### `env-read` — resilience
+*Test Sizes, 2010-12-13*
+
+Code that reads the process environment where nothing declares it:
+`std::env::var`, `os.environ`, `process.env`, `ENV[…]`, `System.getenv`,
+`getenv`. The size contract's table gives system properties a flat **No** for
+small tests, and a component that reads the environment mid-body forces that
+violation on every small test that executes it. The read is an input no
+signature admits to — the function behaves differently on two machines and
+nothing in its declaration says why, which is a test that fails when nothing
+broke.
+
+Signal: an `(_invocation)` whose callee path is the language's environment
+surface, or an `(_access)` that reaches one directly. Matching nodes rather
+than text is what keeps a mention in a comment or a string from firing.
+
+**This is the first rule that reads a whole file rather than the tests in
+it**, and that is a decision, recorded here as §1 requires. The catalogue to
+this point took "a parsed test file"; `env-read` takes any parsed source
+file, because an environment read in production code is precisely what makes
+the tests above it non-hermetic — flagging the read only when it appears in a
+test would flag the symptom and file the cause under "clean". Rather than
+lying about the catalogue's shape, every rule now declares a `scope`: `Tests`
+for the rules a host should run on files that look like tests, `File` for
+rules a host should run on everything it can parse. A host that runs "all
+rules" over test files alone would otherwise be silently skipping half a
+catalogue it believes it is running.
+
+Two boundaries hold exactly as they do for severity. *Where* the environment
+may legitimately be read — a designated configuration module, an entry point
+— is policy about a repository, so naming those files is the host's
+configuration; beamte reports every read and has no view on which were
+licensed. And bash is not covered at all: `$VAR` is the language's own
+variable model, so the rule exports `env_read::covers` and a host reports an
+uncovered language as not read (§7.3), never as clean.
+
+Two misses are named rather than guessed at: a read behind an alias
+(`use std::env::var as v`) or behind a local wrapper is invisible to a single
+tree — the wrapper case is really §10.2's resolution problem wearing another
+hat — and a *write* through the same surface is reported in the same words as
+a read, because the surface is the finding and the fix is the same edge
+either way.
+
 ## 6. The boundary
 
 ### 6.1 Concern by concern
@@ -394,6 +439,7 @@ Every entry in the straitjacket column is a file that exists today.
 |---|---|---|
 | the rules | queries, analysis, thresholds | — |
 | the test model | what marks a test, assertion, mock, fixture | — |
+| licensed env reads | reports every read (§5.5) | names the files allowed to make them |
 | vocabulary | via `treebank-core` | — |
 | parsing | none — takes a tree | engine, packs, cache, `tb_*` ABI |
 | file walk | — | `src/walk.rs` |
@@ -426,7 +472,7 @@ pub struct Unit<'t, N> {
 }
 
 pub fn inspect<'t, N: Node<'t>>(unit: &Unit<'t, N>, model: &TestModel) -> Vec<Finding>;
-pub fn rules() -> &'static [Rule];   // id · property · sentence · citation
+pub fn rules() -> &'static [Rule];   // id · property · scope · sentence · citation
 
 pub struct Finding { rule, property, span, message, help, evidence }
 pub struct Citation { title, url, date }
